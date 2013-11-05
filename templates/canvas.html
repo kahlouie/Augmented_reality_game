@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Canvas tutorial</title>
+    <script type="application/javascript">
+      function draw(){
+        var canvas = document.getElementById("canvas");
+        if (canvas.getContext){
+          var ctx = canvas.getContext("2d");
+
+          ctx.beginPath();
+          ctx.moveTo(50,40);
+          ctx.lineTo(100,40);
+          ctx.lineTo(115,75);
+          ctx.lineTo(100,110);
+          ctx.lineTo(50,110);
+          ctx.lineTo(35,75);
+          ctx.closePath();
+          ctx.stroke();
+        }
+      }
+    </script>
+  </head>
+  <body onload="draw();">
+    <canvas id="canvas" width="150" height="150"></canvas>
+  </body>
+</html>
