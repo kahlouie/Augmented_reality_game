@@ -8,20 +8,86 @@
         if (canvas.getContext){
           var ctx = canvas.getContext("2d");
 
+          // hexagon
+          // ctx.beginPath();
+          // ctx.moveTo(50,40);
+          // ctx.lineTo(100,40);
+          // ctx.lineTo(115,75);
+          // ctx.lineTo(100,110);
+          // ctx.lineTo(50,110);
+          // ctx.lineTo(35,75);
+          // ctx.closePath();
+          // ctx.stroke();
+
+          // filled and empty triangle
+          // ctx.beginPath();
+          // ctx.moveTo(25,25);
+          // ctx.lineTo(105,25);
+          // ctx.lineTo(25,105);
+          // ctx.fill();
+
+          // // Stroked triangle
+          // ctx.beginPath();
+          // ctx.moveTo(105,105);
+          // ctx.lineTo(105,25);
+          // ctx.lineTo(25,105);
+          // ctx.closePath();
+          // ctx.stroke();
+
+          // smiley face
           ctx.beginPath();
-          ctx.moveTo(50,40);
-          ctx.lineTo(100,40);
-          ctx.lineTo(115,75);
-          ctx.lineTo(100,110);
-          ctx.lineTo(50,110);
-          ctx.lineTo(35,75);
-          ctx.closePath();
+          ctx.arc(150,150,50,0,Math.PI*2,true); // Outer circle
+          ctx.moveTo(185,150);
+          ctx.fillStyle = "rgba(255,255,0,0.5)";
+          ctx.fill();
+          ctx.arc(150,150,35,0,Math.PI,false);   // Mouth (clockwise)
+          ctx.moveTo(140,140);
+          ctx.arc(135,140,5,0,Math.PI*2,true);  // Left eye
+          // ctx.fillStyle = "black";
+          // ctx.fillArc();
+          ctx.moveTo(170,140);
+          ctx.arc(165,140,5,0,Math.PI*2,true);  // Right eye
           ctx.stroke();
+
+
+          // speech bubble
+          ctx.beginPath();
+          ctx.moveTo(75,25);
+          ctx.quadraticCurveTo(25,25,25,62.5);
+          ctx.quadraticCurveTo(25,100,50,100);
+          ctx.quadraticCurveTo(50,120,80,125);
+          ctx.quadraticCurveTo(60,120,65,100);
+          ctx.quadraticCurveTo(125,100,125,62.5);
+          ctx.quadraticCurveTo(125,25,75,25);
+          ctx.stroke();
+          
+          // random part circles
+          // for(var i=0;i<4;i++){
+          //   for(var j=0;j<3;j++){
+          //     ctx.beginPath();
+          //     var x              = 25+j*50;               // x coordinate
+          //     var y              = 25+i*50;               // y coordinate
+          //     var radius         = 20;                    // Arc radius
+          //     var startAngle     = 0;                     // Starting point on circle
+          //     var endAngle       = Math.PI+(Math.PI*j)/2; // End point on circle
+          //     var anticlockwise  = i%2==0 ? false : true; // clockwise or anticlockwise
+
+          //     ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
+
+          //     if (i>1){
+          //       ctx.fill();
+          //     } else {
+          //       ctx.stroke();
+          //     }
+          //   }
+          // }
+
+
         }
       }
     </script>
   </head>
   <body onload="draw();">
-    <canvas id="canvas" width="150" height="150"></canvas>
+    <canvas id="canvas" width="900" height="600"></canvas>
   </body>
 </html>

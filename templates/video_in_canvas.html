@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="application/javascript">
+      function draw(){
+        var canvas = document.getElementById("canvas");
+        if (canvas.getContext){
+          var ctx = canvas.getContext("2d");
+
+        // smiley face
+          ctx.beginPath();
+          ctx.arc(150,150,50,0,Math.PI*2,true); // Outer circle
+          ctx.moveTo(185,150);
+          ctx.fillStyle = "rgba(255,255,0,0.5)";
+          ctx.fill();
+          ctx.arc(150,150,35,0,Math.PI,false);   // Mouth (clockwise)
+          ctx.moveTo(140,140);
+          ctx.arc(135,140,5,0,Math.PI*2,true);  // Left eye
+          // ctx.fillStyle = "black";
+          // ctx.fillArc();
+          ctx.moveTo(170,140);
+          ctx.arc(165,140,5,0,Math.PI*2,true);  // Right eye
+          ctx.stroke();
+
+
+          // speech bubble
+          ctx.beginPath();
+          ctx.moveTo(75,25);
+          ctx.quadraticCurveTo(25,25,25,62.5);
+          ctx.quadraticCurveTo(25,100,50,100);
+          ctx.quadraticCurveTo(50,120,80,125);
+          ctx.quadraticCurveTo(60,120,65,100);
+          ctx.quadraticCurveTo(125,100,125,62.5);
+          ctx.quadraticCurveTo(125,25,75,25);
+          ctx.stroke();
+        }
+      }
+    </script>
+</head>
+<body onload="draw();">
+<div id='container'>
+
+  <div class='select'>
+    <label for='videoSource'>Video source: </label><select id='videoSource'></select>
+  </div>
+
+  <video muted autoplay></video>
+
+  <script src="../someones_video_demo.js"></script>
+
+</div>
+</body>
+</html>
