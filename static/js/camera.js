@@ -37,7 +37,16 @@ var camera = (function() {
 		canvas.setAttribute('height', options.height);
 		context = canvas.getContext('2d');
 
-
+	    canvasOverlay = document.createElement("canvas");
+	    canvasOverlay.setAttribute('width', 320);
+	    canvasOverlay.setAttribute('height', 240);
+	    canvasOverlay.style.position = "absolute";
+	    canvasOverlay.style.top = '0px';
+	    canvasOverlay.style.zIndex = '100001';
+	    // canvasOverlay.style.display = 'block';
+	    overlayContext = canvasOverlay.getContext('2d');
+	    overlayContext.clearRect(0,0,320,240);
+	    vid.appendChild(canvasOverlay);
 
 
 
