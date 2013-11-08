@@ -20,7 +20,7 @@ var camera = (function() {
 				if (video.mozSrcOb !== undefined) {
 					video.mozSrcObject = stream;
 				} else {
-					video.src = window.URL && window.URL.createObjectURL(stream)) || stream;
+					video.src = window.URL && window.URL.createObjectURL(stream) || stream;
 				}
 
 				initCanvas();
@@ -32,10 +32,14 @@ var camera = (function() {
 
 	function initCanvas() {
 		canvas = options.targetCanvas || document.createElement("canvas");
+		vid.appendChild(canvas)
 		canvas.setAttribute('width', options.width);
 		canvas.setAttribute('height', options.height);
-
 		context = canvas.getContext('2d');
+
+
+
+
 
 		if (options.mirror) {
 			context.translate(canvas.width, 0);
@@ -80,8 +84,8 @@ var camera = (function() {
 			options = captureOptions || {};
 
 			options.fps = options.fps || 30;
-			options.width = options.width || 900;
-			options.height = options.height || 600;
+			options.width = options.width || 640;
+			options.height = options.height || 480;
 			options.mirror = options.mirror || false;
 			options.targetCanvas = options.targetCanvas || null;
 //TODO: is the element actually a <canvas> ?
@@ -101,33 +105,3 @@ var camera = (function() {
 		stop: stopCapture
 	};
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

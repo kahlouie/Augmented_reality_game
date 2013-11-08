@@ -2,9 +2,9 @@
 	var capturing = false;
 
 	camera.init({
-		width: 160,
-		height: 120,
-		fps: true,
+		width: 900,
+		height: 600,
+		fps: 30,
 		mirror: true,
 
 		onFrame: function(canvas) {
@@ -28,7 +28,7 @@
 				}
 				capturing = !capturing;
 			};
-		};
+		},
 
 		onError: function(error) {
 			// TODO: Log error
