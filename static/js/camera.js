@@ -1,6 +1,6 @@
 var camera = (function() {
 	var options;
-	var video, canvas, context;
+	var video, canvas, canvasOverlay, context;
 	var renderTimer
 
 	function initVideoStream() {
@@ -32,23 +32,23 @@ var camera = (function() {
 
 	function initCanvas() {
 		canvas = options.targetCanvas || document.createElement("canvas");
+		canvas.id = "livevideo";
 		vid.appendChild(canvas)
 		canvas.setAttribute('width', options.width);
 		canvas.setAttribute('height', options.height);
 		context = canvas.getContext('2d');
 
 	    canvasOverlay = document.createElement("canvas");
-	    canvasOverlay.setAttribute('width', 320);
-	    canvasOverlay.setAttribute('height', 240);
+	    canvasOverlay.setAttribute('width', options.width);
+	    canvasOverlay.setAttribute('height', options.height);
 	    canvasOverlay.style.position = "absolute";
-	    canvasOverlay.style.top = '0px';
+	    canvasOverlay.style.left = '10px';
 	    canvasOverlay.style.zIndex = '100001';
 	    // canvasOverlay.style.display = 'block';
 	    overlayContext = canvasOverlay.getContext('2d');
-	    overlayContext.clearRect(0,0,320,240);
+	    overlayContext.clearRect(0,0,900,600);
+	    overlayContext.id = "overlay";
 	    vid.appendChild(canvasOverlay);
-
-
 
 		if (options.mirror) {
 			context.translate(canvas.width, 0);
@@ -63,7 +63,34 @@ var camera = (function() {
 
 		renderTimer = setInterval(function() {
 			try {
+				// videoOnCanvas.fromCanvas(canvas, options, canvasOverlay);
 				context.drawImage(video, 0, 0, video.width, video.height);
+				context.beginPath();
+		        context.arc(150,150,50,0,Math.PI*2,true); // Outer circle
+		        context.moveTo(185,150);
+		        context.fillStyle = "rgba(255,255,0,1)";
+		        context.fill();
+		        context.arc(150,150,35,0,Math.PI,false);   // Mouth (clockwise)
+		        context.moveTo(140,140);
+		        context.arc(135,140,5,0,Math.PI*2,true);  // Left eye
+		        // context.fillStyle = "black";
+		        // context.fillArc();
+		        context.moveTo(170,140);
+		        context.arc(165,140,5,0,Math.PI*2,true);  // Right eye
+		        context.stroke();
+
+
+		        // speech bubble
+		        context.beginPath();
+		        context.moveTo(75,25);
+		        context.quadraticCurveTo(25,25,25,62.5);
+		        context.quadraticCurveTo(25,100,50,100);
+		        context.quadraticCurveTo(50,120,80,125);
+		        context.quadraticCurveTo(60,120,65,100);
+		        context.quadraticCurveTo(125,100,125,62.5);
+		        context.quadraticCurveTo(125,25,75,25);
+		        context.stroke();
+				// overlayContext.drawImage,
 				options.onFrame(canvas);
 			} catch (e) {
 				//TODO
