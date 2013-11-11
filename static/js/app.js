@@ -17,7 +17,6 @@
 
 		onSuccess: function() {
 			document.getElementById("info").style.display = "none";
-
 			capturing = true;
 			document.getElementById("pause").style.display = "block";
 			document.getElementById("pause").onclick = function() {
@@ -32,9 +31,11 @@
 
 		onError: function(error) {
 			// TODO: Log error
+			console.log(error);
 		},
 
 		onNotSupported: function() {
+			console.log("unsupported")
 			document.getElementById("info").style.display = "none";
 			placeholderContainer.style.display = "none";
 			document.getElementById("notSupported").style.display = "block";

@@ -1,6 +1,6 @@
 var videoOnCanvas = (function() {
 	
-  function drawOnCanvas (canvas, options) {
+  function drawOnCanvas (canvas) {
 		var canvasWidth = canvas.width;
 		var canvasHeight = canvas.height;
     var context = canvas.context("2d");
@@ -16,7 +16,7 @@ var videoOnCanvas = (function() {
 		}
   }
 
-  function drawOnOverlay (canvas, options) {
+  function drawOnOverlay (canvas) {
       var canvasWidth = canvas.width;
       var canvasHeight = canvas.height;
       var context = canvas.context("2d");
@@ -49,7 +49,7 @@ var videoOnCanvas = (function() {
         ctx.stroke();
   }
 
-  function draw(canvas, options, canvasOverlay) {
+  function draw(canvas, canvasOverlay) {
       drawOnCanvas(canvas, options);
       drawOnOverlay(canvasOverlay, options);
       return;
