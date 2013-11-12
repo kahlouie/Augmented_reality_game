@@ -1,7 +1,8 @@
 var camera = (function() {
 	var options;
 	var video, canvas, canvasOverlay, context;
-	var renderTimer
+	var renderTimer;
+	var corners, count;
 
 	function initVideoStream() {
 		video = document.createElement("video");
@@ -14,7 +15,7 @@ var camera = (function() {
 		if (navigator.getUserMedia) {
 			navigator.getUserMedia( {
 				video: true
-			}, function(stream) { console.log(stream);
+			}, function(stream) {
 				options.onSuccess();
 
 				if (video.mozSrcOb !== undefined) {
@@ -68,34 +69,7 @@ var camera = (function() {
 				findCorners();
 
 				// getVideoInfo();
-				// // drawOnCanvas();
-				// context.beginPath();
-		  //       context.arc(150,150,50,0,Math.PI*2,true); // Outer circle
-		  //       context.moveTo(185,150);
-		  //       context.fillStyle = "rgba(255,255,0,1)";
-		  //       context.fill();
-		  //       context.arc(150,150,35,0,Math.PI,false);   // Mouth (clockwise)
-		  //       context.moveTo(140,140);
-		  //       context.arc(135,140,5,0,Math.PI*2,true);  // Left eye
-		  //       // context.fillStyle = "black";
-		  //       // context.fillArc();
-		  //       context.moveTo(170,140);
-		  //       context.arc(165,140,5,0,Math.PI*2,true);  // Right eye
-		  //       context.stroke();
 
-
-		  //       // speech bubble
-		  //       context.beginPath();
-		  //       context.moveTo(75,25);
-		  //       context.quadraticCurveTo(25,25,25,62.5);
-		  //       context.quadraticCurveTo(25,100,50,100);
-		  //       context.quadraticCurveTo(50,120,80,125);
-		  //       context.quadraticCurveTo(60,120,65,100);
-		  //       context.quadraticCurveTo(125,100,125,62.5);
-		  //       context.quadraticCurveTo(125,25,75,25);
-		  //       context.stroke();
-				// // overlayContext.drawImage,
-				// options.onFrame(canvas);
 			} catch (e) {
 				//TODO
 			}
@@ -103,24 +77,38 @@ var camera = (function() {
 	}
 
 	function findCorners() {
-		var corners = [],
-		    laplacian_threshold = 30,
-		    min_eigen_value_threshold = 25;
+		var canvasWidth = canvas.width;
+		var canvasHeight = canvas.height;
+		ctx = canvas.getContext("2d");
+
+		ctx.fillStyle = "rgb(0,255,0)";
+		ctx.strokeStyle = "rgb(0,255,0)";
+		console.log("strokeStyle exists");
+		var img_u8 = new jsfeat.matrix_t(900, 600, jsfeat.u8_t | jsfeat.C1_t);
+		console.log(img_u8);
+
+		corners = [],
+		    laplacian_threshold = 100,
+		    min_eigen_value_threshold = 60;
  
 		// choose threshold values
 		jsfeat.yape06.laplacian_threshold = laplacian_threshold;
 		jsfeat.yape06.min_eigen_value_threshold = min_eigen_value_threshold;
  
+
 		// you should use preallocated point2d_t array
 		for(var i = 0; i < img.cols*img.rows; ++i) {
 		    corners[i] = new jsfeat.point2d_t(0,0,0,0);
-		}
- 
+		} 
 		// perform detection
 		// returns the amount of detected corners
-		var count = jsfeat.yape06.detect({img:matrix_t, corners:Array});
+		count = jsfeat.yape06.detect({img:matrix_t, corners:Array});
 		console.log(count);
 		console.log(corners);
+	}
+
+	function tick() {
+
 	}
 
 	function getVideoInfo() {
