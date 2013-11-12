@@ -2,3 +2,4 @@ env
 .DS_Store
 camera(no ht).js
 reworked_camera
+templates/sampleCorners.html

@@ -3,6 +3,7 @@ var camera = (function() {
 	var video, canvas, canvasOverlay, context;
 	var renderTimer;
 	var corners, count;
+	var img_u8;
 
 	function initVideoStream() {
 		video = document.createElement("video");
@@ -55,7 +56,7 @@ var camera = (function() {
 			context.translate(canvas.width, 0);
 			context.scale(-1, 1);
 		}
-
+		findCorners();
 		startCapture();
 	}
 
@@ -63,29 +64,29 @@ var camera = (function() {
 		video.play();
 
 		renderTimer = setInterval(function() {
-			try {
+			//try {
 				// videoOnCanvas.fromCanvas(canvas, options, canvasOverlay);
 				context.drawImage(video, 0, 0, video.width, video.height);
-				findCorners();
+				tick();
 
 				// getVideoInfo();
 
-			} catch (e) {
+			//} catch (e) {
 				//TODO
-			}
+			//	console.log(e);
+			//}
 		}, Math.round(1000 / options.fps));
 	}
 
 	function findCorners() {
+		//debugger;
 		var canvasWidth = canvas.width;
 		var canvasHeight = canvas.height;
 		ctx = canvas.getContext("2d");
 
 		ctx.fillStyle = "rgb(0,255,0)";
 		ctx.strokeStyle = "rgb(0,255,0)";
-		console.log("strokeStyle exists");
-		var img_u8 = new jsfeat.matrix_t(900, 600, jsfeat.u8_t | jsfeat.C1_t);
-		console.log(img_u8);
+		img_u8 = new jsfeat.matrix_t(900, 600, jsfeat.U8_t | jsfeat.C1_t);
 
 		corners = [],
 		    laplacian_threshold = 100,
@@ -97,24 +98,29 @@ var camera = (function() {
  
 
 		// you should use preallocated point2d_t array
-		for(var i = 0; i < img.cols*img.rows; ++i) {
+		for(var i = 0; i < canvasWidth*canvasHeight; ++i) {
 		    corners[i] = new jsfeat.point2d_t(0,0,0,0);
 		} 
-		// perform detection
-		// returns the amount of detected corners
-		count = jsfeat.yape06.detect({img:matrix_t, corners:Array});
-		console.log(count);
-		console.log(corners);
 	}
 
 	function tick() {
+		var imageData = getVideoInfo();
+		jsfeat.imgproc.grayscale(imageData.data, img_u8.data);
+        jsfeat.imgproc.box_blur_gray(img_u8, img_u8, 2, 0);
 
+        jsfeat.yape06.laplacian_threshold = options.lap_thres|0;
+        jsfeat.yape06.min_eigen_value_threshold = options.eigen_thres|0;
+        // perform detection
+		// returns the amount of detected corners
+		count = jsfeat.yape06.detect(img_u8, corners);
+		// console.log(count);
+		console.log(corners);
 	}
 
 	function getVideoInfo() {
 		var v = document.getElementById("livevideo");
 		var ctx=v.getContext("2d");
-		// console.log(ctx.getImageData(0,0,canvas.width,canvas.height);
+		return ctx.getImageData(0,0,canvas.width,canvas.height);
 	}
 
 	function stopCapture() {

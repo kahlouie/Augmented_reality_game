@@ -86,6 +86,7 @@
             // clear references
             delete this.data;
             delete this.buffer;
+
             //
             this.buffer = new data_t((this.cols * get_data_type_size(this.type) * this.channel) * this.rows);
             this.data = this.type&U8_t ? this.buffer.u8 : (this.type&S32_t ? this.buffer.i32 : (this.type&F32_t ? this.buffer.f32 : this.buffer.f64));
