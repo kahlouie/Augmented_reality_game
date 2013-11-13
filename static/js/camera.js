@@ -1,3 +1,5 @@
+var rectangleCorners = [];
+var originRectangle = [[300, 250], [600, 250], [600, 350], [300, 350]];
 var camera = (function() {
 	var options;
 	var video, canvas, canvasOverlay, context;
@@ -26,6 +28,12 @@ var camera = (function() {
 				}
 
 				initCanvas();
+				$("#livevideo").on("click", function(ev) {
+					cornerPoint = [];
+					cornerPoint[0] = ev.offsetX;
+					cornerPoint[1] = ev.offsetY;
+					rectangleCorners[rectangleCorners.length] = cornerPoint;
+				});
 			}, options.onError);
 		} else {
 			options.onNotSupported();
@@ -40,17 +48,17 @@ var camera = (function() {
 		canvas.setAttribute('height', options.height);
 		context = canvas.getContext('2d');
 
-	    canvasOverlay = document.createElement("canvas");
-	    canvasOverlay.setAttribute('width', options.width);
-	    canvasOverlay.setAttribute('height', options.height);
-	    canvasOverlay.style.position = "absolute";
-	    canvasOverlay.style.left = '10px';
-	    canvasOverlay.style.zIndex = '100001';
-	    // canvasOverlay.style.display = 'block';
-	    overlayContext = canvasOverlay.getContext('2d');
-	    overlayContext.clearRect(0,0,900,600);
-	    overlayContext.id = "overlay";
-	    vid.appendChild(canvasOverlay);
+	    // canvasOverlay = document.createElement("canvas");
+	    // canvasOverlay.setAttribute('width', options.width);
+	    // canvasOverlay.setAttribute('height', options.height);
+	    // canvasOverlay.style.position = "absolute";
+	    // canvasOverlay.style.left = '10px';
+	    // canvasOverlay.style.zIndex = '100001';
+	    // // canvasOverlay.style.display = 'block';
+	    // overlayContext = canvasOverlay.getContext('2d');
+	    // overlayContext.clearRect(0,0,900,600);
+	    // overlayContext.id = "overlay";
+	    // vid.appendChild(canvasOverlay);
 
 		if (options.mirror) {
 			context.translate(canvas.width, 0);
@@ -108,13 +116,48 @@ var camera = (function() {
 		jsfeat.imgproc.grayscale(imageData.data, img_u8.data);
         jsfeat.imgproc.box_blur_gray(img_u8, img_u8, 2, 0);
 
-        jsfeat.yape06.laplacian_threshold = options.lap_thres|0;
-        jsfeat.yape06.min_eigen_value_threshold = options.eigen_thres|0;
+        jsfeat.yape06.laplacian_threshold = options.lap_thres|100;
+        jsfeat.yape06.min_eigen_value_threshold = options.eigen_thres|60;
         // perform detection
 		// returns the amount of detected corners
 		count = jsfeat.yape06.detect(img_u8, corners);
-		// console.log(count);
-		console.log(corners);
+		var data_u32 = new Uint32Array(imageData.data.buffer);
+		renderCorners(corners, count, data_u32, 900);
+
+		var v = document.getElementById("livevideo");
+		var ctx=v.getContext("2d");
+		ctx.putImageData(imageData, 0, 0);
+	}
+
+	function renderCorners(corners, count, img, step) {
+		var pix = (0xff << 24) | (0x00 << 16) | (0xff << 8) | 0x00;
+		for (var i = 0; i < count; i++) {
+			var x = corners[i].x;
+			var y = corners[i].y;
+			var offset = (x + y * step);
+			img[offset] = pix;
+			img[offset - 1] = pix;
+			img[offset + 1] = pix;
+			img[offset - step] = pix;
+			img[offset + step] = pix;
+		}
+	}
+
+	// tracks specific pixels
+	function homography() {
+		var homo_kernel = new jsfeat.motion_model.homography2d();
+		var homo_transform = new jsfeat.matrix_t(3,3, jsfeat.F32_t | jsfeat.C1_t);
+		var from = [];
+		var to = [];
+
+		for (var i = 0; i < count; ++i) {
+			from[i] = { "x":originRectangle[i][0], "y":originRectangle[i][1] };
+			to[i] = {"x":rectangleCorners[i][0], "y":rectangleCorners[i][1]};
+		}
+		homo_kernel.run(from, to, homo_transform, count);
+
+		var error = new jsfeat.matrix_t(count, 1, jsfeat.F32_t | jsfeat.C1_t);
+		homo_kernel.error(from, to, homo_transform, error.data, count);
 	}
 
 	function getVideoInfo() {
@@ -166,3 +209,4 @@ var camera = (function() {
 		stop: stopCapture
 	};
 })();
+
