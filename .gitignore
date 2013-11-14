@@ -3,3 +3,4 @@ env
 camera(no ht).js
 reworked_camera
 templates/sampleCorners.html
+static/js/thing.js

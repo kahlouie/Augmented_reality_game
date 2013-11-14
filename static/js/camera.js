@@ -150,14 +150,33 @@ var camera = (function() {
 		var from = [];
 		var to = [];
 
-		for (var i = 0; i < count; ++i) {
+		for (var i = 0; i < originRectangle.length; ++i) {
 			from[i] = { "x":originRectangle[i][0], "y":originRectangle[i][1] };
 			to[i] = {"x":rectangleCorners[i][0], "y":rectangleCorners[i][1]};
 		}
-		homo_kernel.run(from, to, homo_transform, count);
+		homo_kernel.run(from, to, homo_transform, originRectangle.length);
 
-		var error = new jsfeat.matrix_t(count, 1, jsfeat.F32_t | jsfeat.C1_t);
-		homo_kernel.error(from, to, homo_transform, error.data, count);
+		var error = new jsfeat.matrix_t(originRectangle.length, 1, jsfeat.F32_t | jsfeat.C1_t);
+		homo_kernel.error(from, to, homo_transform, error.data, originRectangle.length);
+
+		// console.log(homo_transform);
+
+		for (var i = 0; i < originRectangle.length; ++i) {
+			var originPoint = new jsfeat.matrix_t(1,3, jsfeat.F32_t | jsfeat.C1_t);
+			originPoint.data[0] = originRectangle[i][0];
+			originPoint.data[1] = originRectangle[i][1];
+			originPoint.data[2] = 1;
+			console.log(originPoint);
+			console.log(homo_transform);
+			var newPointMatrix = new jsfeat.matrix_t(1,3, jsfeat.F32_t | jsfeat.C1_t);
+			jsfeat.matmath.multiply(newPointMatrix, homo_transform, originPoint);
+			console.log(originPoint);
+			console.log("originPoint");
+			console.log(homo_transform);
+			console.log("homo_transform");
+			console.log(newPointMatrix);
+			console.log("newPointMatrix");
+		}
 	}
 
 	function getVideoInfo() {
