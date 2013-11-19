@@ -3,6 +3,7 @@
 <head>
 </head>
 <body>
+	<canvas id="3d" height=600 width=900></canvas>
 	<script src="http://code.jquery.com/jquery-2.0.3.js"></script>
 	<script src="/../static/js/three.min.js"></script>
 	<script>
@@ -15,19 +16,24 @@
 
 	function init() {
 
-		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+		camera = new THREE.PerspectiveCamera( 75, 900 / 600, 1, 10000 );
 		camera.position.z = 1000;
 
 		scene = new THREE.Scene();
 
 		geometry = new THREE.CubeGeometry( 200, 200, 200);
-		material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
+		material = new THREE.MeshLambertMaterial( { color: 0xffFFFF, wireframe: false } );
 
 		mesh = new THREE.Mesh( geometry, material );
 		scene.add( mesh );
 
-		renderer = new THREE.CanvasRenderer();
-		renderer.setSize( window.innerWidth, window.innerHeight );
+		var light = new THREE.PointLight( 0x00FF00, 10, 1000 );
+		light.position.set( 250, 250, 1000 );
+		scene.add( light );
+
+		renderObj = {canvas: document.getElementById("3d")}
+
+		renderer = new THREE.WebGLRenderer(renderObj);
 
 		document.body.appendChild( renderer.domElement );
 
@@ -40,24 +46,11 @@
 
 		mesh.rotation.x += 0.01;
 		mesh.rotation.y += 0.02;
+		// mesh.rotation.z += 0.1;
 		renderer.render( scene, camera );
 
 	}
 
-	// function animate() {
-
-	// 	// note: three.js includes requestAnimationFrame shim
-	// 	requestAnimationFrame( animate );
-	// 	// var counter = 0;
-	// 	// if (i < 1) {
-	// 	mesh.rotation.x += 0.01;
-	// 	mesh.rotation.y += 0.02;
-	// 	// 	i +=0.01
-	// 	// }
-
-	// 	renderer.render( scene, camera );
-
-	// }
 
 	</script>
 </body>

@@ -1,10 +1,10 @@
 var rectangleCorners = [];
-var originRectangle = [[300, 250], [600, 250], [600, 350], [300, 350]];
+var originRectangle = [[323, 218], [539, 218], [539, 329], [323, 329]];
 var camera = (function() {
 	var options;
 	var video, canvas, canvasOverlay, context;
 	var renderTimer;
-	var corners, count;
+	// var corners, count;
 	var img_u8;
 
 	function initVideoStream() {
@@ -28,7 +28,7 @@ var camera = (function() {
 				}
 
 				initCanvas();
-				$("#livevideo").on("click", function(ev) {
+				$("#canvasoverlay").on("click", function(ev) {
 					cornerPoint = [];
 					cornerPoint[0] = ev.offsetX;
 					cornerPoint[1] = ev.offsetY;
@@ -48,24 +48,61 @@ var camera = (function() {
 		canvas.setAttribute('height', options.height);
 		context = canvas.getContext('2d');
 
-	    // canvasOverlay = document.createElement("canvas");
-	    // canvasOverlay.setAttribute('width', options.width);
-	    // canvasOverlay.setAttribute('height', options.height);
-	    // canvasOverlay.style.position = "absolute";
-	    // canvasOverlay.style.left = '10px';
-	    // canvasOverlay.style.zIndex = '100001';
-	    // // canvasOverlay.style.display = 'block';
+	    canvasOverlay = document.createElement("canvas");
+	    canvasOverlay.id = "canvasoverlay";
+	    canvasOverlay.setAttribute('width', options.width);
+	    canvasOverlay.setAttribute('height', options.height);
+	    canvasOverlay.style.position = "absolute";
+	    canvasOverlay.style.left = '10px';
+	    canvasOverlay.style.zIndex = '100001';
+	    // canvasOverlay.style.display = 'block';
 	    // overlayContext = canvasOverlay.getContext('2d');
 	    // overlayContext.clearRect(0,0,900,600);
 	    // overlayContext.id = "overlay";
-	    // vid.appendChild(canvasOverlay);
+	    vid.appendChild(canvasOverlay);
 
 		if (options.mirror) {
 			context.translate(canvas.width, 0);
 			context.scale(-1, 1);
 		}
-		findCorners();
+		// findCorners();
 		startCapture();
+		// initOverlay();
+		// animateOverlay();
+	}
+
+	function detection(){
+		requestAnimationFrame(detection);
+		var imageData = getVideoInfo();
+		if (video) {
+			var markers = detector.detect(imageData);
+			drawCorners(markers);
+			// drawId(markers);
+		}
+	}
+	function drawCorners(markers) {
+		var corners, corner, i, j;
+		var ctx = document.getElementById("canvas").getContext("2d");
+		ctx.lineWidth = 3;
+
+		for (i = 0; i !== markers.length; ++i){
+			corners = markers[i].corners;
+			ctx.strokeStyle = "rgba(255, 0, 0, 1)";
+			ctx.beginPath();
+
+			for (j = 0; j !== corners.length; ++ j) {
+				corner = corners[j];
+				ctx.moveTo(corner.x, corner.y);
+				corner = corners[(j +1 ) % corners.length];
+				ctx.lineTo(corner.x, corner.y);
+			}
+
+			ctx.stroke();
+			ctx.closePath();
+
+			ctx.strokeStyle = "rgba(0, 255, 0, 1)";
+			ctx.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
+		}
 	}
 
 	function startCapture() {
@@ -75,7 +112,7 @@ var camera = (function() {
 			//try {
 				// videoOnCanvas.fromCanvas(canvas, options, canvasOverlay);
 				context.drawImage(video, 0, 0, video.width, video.height);
-				tick();
+				// tick();
 
 				// getVideoInfo();
 
@@ -159,24 +196,46 @@ var camera = (function() {
 		var error = new jsfeat.matrix_t(originRectangle.length, 1, jsfeat.F32_t | jsfeat.C1_t);
 		homo_kernel.error(from, to, homo_transform, error.data, originRectangle.length);
 
-		// console.log(homo_transform);
+		// // console.log(homo_transform);
 
-		for (var i = 0; i < originRectangle.length; ++i) {
-			var originPoint = new jsfeat.matrix_t(1,3, jsfeat.F32_t | jsfeat.C1_t);
-			originPoint.data[0] = originRectangle[i][0];
-			originPoint.data[1] = originRectangle[i][1];
-			originPoint.data[2] = 1;
-			console.log(originPoint);
-			console.log(homo_transform);
-			var newPointMatrix = new jsfeat.matrix_t(1,3, jsfeat.F32_t | jsfeat.C1_t);
-			jsfeat.matmath.multiply(newPointMatrix, homo_transform, originPoint);
-			console.log(originPoint);
-			console.log("originPoint");
-			console.log(homo_transform);
-			console.log("homo_transform");
-			console.log(newPointMatrix);
-			console.log("newPointMatrix");
-		}
+		// for (var i = 0; i < originRectangle.length; ++i) {
+		// 	var originPoint = new jsfeat.matrix_t(1,3, jsfeat.F32_t | jsfeat.C1_t);
+		// 	originPoint.data[0] = originRectangle[i][0];
+		// 	originPoint.data[1] = originRectangle[i][1];
+		// 	originPoint.data[2] = 1;
+		// 	console.log(originPoint);
+		// 	console.log(homo_transform);
+		// 	var newPointMatrix = new jsfeat.matrix_t(1,3, jsfeat.F32_t | jsfeat.C1_t);
+		// 	jsfeat.matmath.multiply(newPointMatrix, homo_transform, originPoint);
+			// console.log(originPoint);
+			// console.log("originPoint");
+			// console.log(homo_transform);
+			// console.log("homo_transform");
+			// console.log(newPointMatrix);
+			// console.log("newPointMatrix");
+		// }
+		return homo_transform;
+	}
+
+	function hpCalibration(){
+		var row = 480;
+		var col = 640;
+		var fx = 864 * col / 900;
+		var fy = 888 * row / 600;
+		var K = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t);
+		K.data[0] = fx;
+		K.data[4] = fy;
+		K.data[8] = 1;
+		K.data[2] = 0.5 * col;
+		K.data[5] = 0.5 * row;
+		console.log(K);
+		return K
+	}
+
+	function multKT() {
+		var C = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t);
+		jsfeat.matmath.multiply(C, hpCalibration(), homography());
+		return C;
 	}
 
 	function getVideoInfo() {
@@ -198,6 +257,66 @@ var camera = (function() {
 	function pauseCapture() {
 		if (renderTimer) clearInterval(renderTimer);
 		video.pause();
+	}
+
+		var camera, scene, renderer;
+	var geometry, material, mesh;
+
+
+	function initOverlay() {
+
+		camera = new THREE.PerspectiveCamera( 75, 900 / 600, 1, 10000 );
+		camera.position.z = 1000;
+
+		scene = new THREE.Scene();
+
+		geometry = new THREE.CubeGeometry( 200, 200, 200);
+		material = new THREE.MeshLambertMaterial( { color: 0xff0000, wireframe: false } );
+
+		mesh = new THREE.Mesh( geometry, material );
+		scene.add( mesh );
+		// mesh.position.set(0, 0, 1)
+
+		var light = new THREE.PointLight( 0xffffff, 10, 1000 );
+		light.position.set( 250, 250, 1000 );
+		scene.add( light );
+
+		renderObj = {canvas: document.getElementById("canvasoverlay")}
+
+		renderer = new THREE.WebGLRenderer(renderObj);
+
+		// document.vid.appendChild( renderer.domElement );
+
+	}
+
+	function animateOverlay() {
+
+		// note: three.js includes requestAnimationFrame shim
+		requestAnimationFrame( animateOverlay );
+
+		if (rectangleCorners.length >= 4) {
+			ht = multKT();
+			htd = ht.data
+			var cameraMatrix = new THREE.Matrix4(htd[0], htd[1], 0, htd[2],
+											htd[3], htd[4], 0, htd[5],
+											0, 0, 1, 0,
+											htd[6], htd[7], 0, htd[8]);
+			var invcamMat = new THREE.Matrix4();
+			invcamMat.getInverse(cameraMatrix);
+			// scene.add(mesh);
+		}
+		var clone = camera.clone();
+		if (cameraMatrix) {
+			// console.log(invcamMat);
+			clone.projectionMatrix.multiplyMatrices(camera.projectionMatrix, invcamMat);
+			console.log(clone.projectionMatrix);
+		}
+		
+		// mesh.rotation.x = 1;
+		// mesh.rotation.y = 0;
+		// mesh.rotation.z += 0.1;
+		renderer.render( scene, clone );
+
 	}
 
 	return {

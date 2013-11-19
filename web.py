@@ -6,6 +6,10 @@ app = Flask(__name__)
 def index():
 	return render_template("/index.html")
 
+@app.route("/marker")
+def markers():
+	return render_template("/marker.html")
+
 @app.route("/threejs")
 def threejs():
 	return render_template("/threejssample.html")
