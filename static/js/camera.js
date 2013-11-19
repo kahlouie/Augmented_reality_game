@@ -65,24 +65,18 @@ var camera = (function() {
 			context.translate(canvas.width, 0);
 			context.scale(-1, 1);
 		}
+
+		video.play();
 		// findCorners();
-		startCapture();
+		// startCapture();
+		detection();
 		// initOverlay();
 		// animateOverlay();
 	}
 
-	function detection(){
-		requestAnimationFrame(detection);
-		var imageData = getVideoInfo();
-		if (video) {
-			var markers = detector.detect(imageData);
-			drawCorners(markers);
-			// drawId(markers);
-		}
-	}
 	function drawCorners(markers) {
 		var corners, corner, i, j;
-		var ctx = document.getElementById("canvas").getContext("2d");
+		var ctx = document.getElementById("canvasoverlay").getContext("2d");
 		ctx.lineWidth = 3;
 
 		for (i = 0; i !== markers.length; ++i){
@@ -102,6 +96,46 @@ var camera = (function() {
 
 			ctx.strokeStyle = "rgba(0, 255, 0, 1)";
 			ctx.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
+		}
+	}
+
+	function drawID(markers) {
+		var corners, corner, x, y, i, j;
+
+		var ctx = document.getElementById("canvasoverlay").getContext("2d");
+		ctx.strokeStyle = "rgba(0, 0, 255, 1)";
+		ctx.lineWidth = 1;
+
+		for (i = 0; i < markers.length; ++i) {
+			corners = markers[i].corners;
+
+			x = Infinity;
+			y = Infinity;
+
+			for (j = 0; j < markers.length; ++j) {
+				corner = corners[j];
+
+				x = Math.min(x, corner.x);
+				y = Math.min(y, corner.y);
+			}
+			ctx.strokeText(markers[i].id, x, y);
+		}
+
+	}
+
+	function detection(){
+		requestAnimationFrame(detection);
+		var canvas = document.getElementById("canvasoverlay");
+		canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+		var ctx = document.getElementById("livevideo").getContext("2d");
+		ctx.drawImage(video, 0, 0, video.width, video.height);
+		ctx = document.getElementById("canvasoverlay").getContext("2d");
+		var detector = new AR.Detector();
+		var imageData = getVideoInfo();
+		if (video) {
+			var markers = detector.detect(imageData);
+			drawCorners(markers);
+			drawID(markers);
 		}
 	}
 
