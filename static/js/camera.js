@@ -5,6 +5,7 @@ var camera = (function() {
 	var video, canvas, canvasOverlay, context;
 	var renderTimer;
 	// var corners, count;
+	var positionMatrix;
 	var img_u8;
 
 	function initVideoStream() {
@@ -54,7 +55,7 @@ var camera = (function() {
 	    canvasOverlay.setAttribute('height', options.height);
 	    canvasOverlay.style.position = "absolute";
 	    canvasOverlay.style.left = '10px';
-	    canvasOverlay.style.zIndex = '100001';
+	    canvasOverlay.style.zIndex = '10';
 	    // canvasOverlay.style.display = 'block';
 	    // overlayContext = canvasOverlay.getContext('2d');
 	    // overlayContext.clearRect(0,0,900,600);
@@ -70,16 +71,17 @@ var camera = (function() {
 		// findCorners();
 		// startCapture();
 		detection();
-		// initOverlay();
-		// animateOverlay();
+		initOverlay();
+		animateOverlay();
 	}
+
 
 	function drawCorners(markers) {
 		var corners, corner, i, j;
 		var ctx = document.getElementById("canvasoverlay").getContext("2d");
 		ctx.lineWidth = 3;
 
-		for (i = 0; i !== markers.length; ++i){
+		for (i = 0; i < markers.length; ++i){
 			corners = markers[i].corners;
 			ctx.strokeStyle = "rgba(255, 0, 0, 1)";
 			ctx.beginPath();
@@ -112,6 +114,8 @@ var camera = (function() {
 			x = Infinity;
 			y = Infinity;
 
+			// console.log(posEst(markers[i]));
+
 			for (j = 0; j < markers.length; ++j) {
 				corner = corners[j];
 
@@ -130,13 +134,28 @@ var camera = (function() {
 		var ctx = document.getElementById("livevideo").getContext("2d");
 		ctx.drawImage(video, 0, 0, video.width, video.height);
 		ctx = document.getElementById("canvasoverlay").getContext("2d");
-		var detector = new AR.Detector();
+		detector = new AR.Detector();
 		var imageData = getVideoInfo();
 		if (video) {
 			var markers = detector.detect(imageData);
-			drawCorners(markers);
-			drawID(markers);
+			// drawCorners(markers);
+			// drawID(markers);
 		}
+	}
+
+	function posEst(marker) {
+		var canvas = document.getElementById("livevideo");
+		var posit = new POS.Posit(58, canvas.width);
+
+		var corners = marker.corners;
+
+		for (var i = 0; i < corners.length; ++i) {
+			var corner = corners[i];
+
+			corner.x = corner.x - (canvas.width / 2);
+			corner.y = (canvas.height / 2) - corner.y;
+		}
+		return posit;
 	}
 
 	function startCapture() {
@@ -157,6 +176,7 @@ var camera = (function() {
 		}, Math.round(1000 / options.fps));
 	}
 
+	/* JSFeat corner finder
 	function findCorners() {
 		//debugger;
 		var canvasWidth = canvas.width;
@@ -200,6 +220,7 @@ var camera = (function() {
 		ctx.putImageData(imageData, 0, 0);
 	}
 
+
 	function renderCorners(corners, count, img, step) {
 		var pix = (0xff << 24) | (0x00 << 16) | (0xff << 8) | 0x00;
 		for (var i = 0; i < count; i++) {
@@ -214,6 +235,7 @@ var camera = (function() {
 		}
 	}
 
+	// Not using this currently. adapted from JSFeat
 	// tracks specific pixels
 	function homography() {
 		var homo_kernel = new jsfeat.motion_model.homography2d();
@@ -271,7 +293,7 @@ var camera = (function() {
 		jsfeat.matmath.multiply(C, hpCalibration(), homography());
 		return C;
 	}
-
+	*/
 	function getVideoInfo() {
 		var v = document.getElementById("livevideo");
 		var ctx=v.getContext("2d");
@@ -296,7 +318,7 @@ var camera = (function() {
 		var camera, scene, renderer;
 	var geometry, material, mesh;
 
-
+	// ThreeJS animate and draw a cube
 	function initOverlay() {
 
 		camera = new THREE.PerspectiveCamera( 75, 900 / 600, 1, 10000 );
@@ -315,9 +337,9 @@ var camera = (function() {
 		light.position.set( 250, 250, 1000 );
 		scene.add( light );
 
-		renderObj = {canvas: document.getElementById("canvasoverlay")}
+		// renderObj = {canvas: document.getElementById("canvasoverlay")}
 
-		renderer = new THREE.WebGLRenderer(renderObj);
+		renderer = new THREE.WebGLRenderer({canvas: document.getElementById("canvasoverlay")});
 
 		// document.vid.appendChild( renderer.domElement );
 
@@ -328,22 +350,50 @@ var camera = (function() {
 		// note: three.js includes requestAnimationFrame shim
 		requestAnimationFrame( animateOverlay );
 
-		if (rectangleCorners.length >= 4) {
-			ht = multKT();
-			htd = ht.data
-			var cameraMatrix = new THREE.Matrix4(htd[0], htd[1], 0, htd[2],
-											htd[3], htd[4], 0, htd[5],
-											0, 0, 1, 0,
-											htd[6], htd[7], 0, htd[8]);
-			var invcamMat = new THREE.Matrix4();
-			invcamMat.getInverse(cameraMatrix);
-			// scene.add(mesh);
+		var imageData = getVideoInfo();
+		markers = detector.detect(imageData);
+		for (var i = 0; i < markers.length; ++i) {
+			var pos = posEst(markers[i]);
+			var bestTranslation = pos.pose(markers[i].corners).bestTranslation;
+			// console.log(bestTranslation);
+			var bestRotation = pos.pose(markers[i].corners).bestRotation;
+			// console.log(bestRotation);
+			var matrixTranslation = new jsfeat.matrix_t(1, 3, jsfeat.F32_t | jsfeat.C1_t);
+			for (var j = 0; j < bestTranslation.length; j++) {
+				matrixTranslation.data[j] = bestTranslation[j];
+			}
+			// console.log(matrixTranslation);
+			var matrixRotation = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t);
+			for (var k = 0; k < bestRotation.length; k++) {
+				matrixRotation.data[k * 3] = bestRotation[k][0];
+				matrixRotation.data[k * 3 + 1] = bestRotation[k][1];
+				matrixRotation.data[k * 3 + 2] = bestRotation[k][2];
+			}
+			// console.log(matrixRotation);
+			positionMatrix = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t)
+			jsfeat.matmath.multiply(positionMatrix, matrixRotation, matrixTranslation);
+
 		}
+		var pmd = positionMatrix.data;
+		var cameraMatrix = new THREE.Matrix4(pmd[0], pmd[1], 0, pmd[2],
+											pmd[3], pmd[4], 0, pmd[5],
+											0, 0, 1, 0,
+											pmd[6], pmd[7], 0, pmd[8]);
+		// if (rectangleCorners.length >= 4) {
+		// 	ht = multKT();
+		// 	htd = ht.data
+		// 	var cameraMatrix = new THREE.Matrix4(htd[0], htd[1], 0, htd[2],
+		// 									htd[3], htd[4], 0, htd[5],
+		// 									0, 0, 1, 0,
+		// 									htd[6], htd[7], 0, htd[8]);
+		// 	var invcamMat = new THREE.Matrix4();
+		// 	invcamMat.getInverse(cameraMatrix);
+		// 	// scene.add(mesh);
+		// }
 		var clone = camera.clone();
 		if (cameraMatrix) {
 			// console.log(invcamMat);
-			clone.projectionMatrix.multiplyMatrices(camera.projectionMatrix, invcamMat);
-			console.log(clone.projectionMatrix);
+			clone.projectionMatrix.multiplyMatrices(camera.projectionMatrix, cameraMatrix);
 		}
 		
 		// mesh.rotation.x = 1;
