@@ -70,9 +70,11 @@ var camera = (function() {
 		// video.play();
 		// findCorners();
 		startCapture();
-		detection();
+		ctx = document.getElementById("canvasoverlay").getContext("3d");
+		// detection();
 		initOverlay();
-		animateOverlay();
+		doEverything();
+		// animateOverlay();
 	}
 
 
@@ -127,15 +129,20 @@ var camera = (function() {
 
 	}
 
+	function doEverything() {
+		requestAnimationFrame(doEverything);
+		detection();
+		animateOverlay();
+	}
+
 	function detection(){
-		requestAnimationFrame(detection);
-		var canvas = document.getElementById("canvasoverlay");
+		// requestAnimationFrame(detection);
+		// var canvas = document.getElementById("canvasoverlay");
 		// canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 		var ctx = document.getElementById("livevideo").getContext("2d");
 		ctx.drawImage(video, 0, 0, video.width, video.height);
 		var imageData = getVideoInfo();
 		// console.log(imageData);
-		ctx = document.getElementById("canvasoverlay").getContext("3d");
 		detector = new AR.Detector();
 		if (video) {
 			var markers = detector.detect(imageData);
@@ -332,6 +339,7 @@ var camera = (function() {
 		object = new THREE.Object3D();
 		var mesh = new THREE.Mesh( geometry, material );
 		object.add(mesh);
+		scene.add( object );
 		// mesh = new THREE.Mesh( geometry, material );
 		// scene.add( mesh );
 		// mesh.position.set(0, 0, 1)
@@ -355,7 +363,7 @@ var camera = (function() {
 	function animateOverlay() {
 
 		// note: three.js includes requestAnimationFrame shim
-		requestAnimationFrame( animateOverlay );
+		// requestAnimationFrame( animateOverlay );
 
 
 		var imageData = getVideoInfo();
@@ -389,10 +397,10 @@ var camera = (function() {
 
 
 			//homogeneous translation matrix!
-			var matrixRotation = new THREE.Matrix4(bR[0][0], bR[0][1], bR[0][2], bT[0],
-													bR[1][0], bR[1][1], bR[1][2], bT[1],
-													bR[2][0], bR[2][1], bR[2][2], bT[2],
-													0, 0, 0, 1);
+			// var matrixRotation = new THREE.Matrix4(bR[0][0], bR[0][1], bR[0][2], bT[0],
+			// 										bR[1][0], bR[1][1], bR[1][2], bT[1],
+			// 										bR[2][0], bR[2][1], bR[2][2], bT[2],
+			// 										0, 0, 0, 1);
 		}
 		// var pmd = positionMatrix.data;
 		// var cameraMatrix = new THREE.Matrix4(pmd[0], pmd[1], 0, pmd[2],
@@ -427,7 +435,6 @@ var camera = (function() {
 			object.scale.x = 0.75;
 			object.scale.y = 0.75;
 			object.scale.z = 0.75;
-			scene.add( object );	
 		// }
 		// mesh.rotation.x = 1;
 		// mesh.rotation.y = 0;
