@@ -322,22 +322,26 @@ var camera = (function() {
 	// ThreeJS animate and draw a cube
 	function initOverlay() {
 
-		camera = new THREE.PerspectiveCamera( 75, 900 / 600, 1, 10000 );
-		camera.position.z = 1000;
+		camera = new THREE.PerspectiveCamera( 40, 900 / 600, 1, 1000 );
+		// camera.position.z = 1000;
 
 		scene = new THREE.Scene();
 
-		geometry = new THREE.CubeGeometry( 200, 200, 200);
+		geometry = new THREE.CubeGeometry( 100, 100, 100);
 		material = new THREE.MeshLambertMaterial( { color: 0xff0000, wireframe: false } );
-
-		mesh = new THREE.Mesh( geometry, material );
-		scene.add( mesh );
+		object = new THREE.Object3D();
+		var mesh = new THREE.Mesh( geometry, material );
+		object.add(mesh);
+		// mesh = new THREE.Mesh( geometry, material );
+		// scene.add( mesh );
 		// mesh.position.set(0, 0, 1)
 
-		var light = new THREE.PointLight( 0xFFFFFF, 10, 1000 );
-		light.position.set( 250, 250, 1000 );
-		scene.add( light );
+		var dlight = new THREE.DirectionalLight( 0xFFFFFF, 1 );
+		dlight.position.set( 0, 1, 0 );
+		scene.add( dlight );
 
+		var hlight = new THREE.HemisphereLight(0xFFFFFF, 0x404040);
+		scene.add(hlight);
 
 		renderObj = {canvas: document.getElementById("canvasoverlay")}
 
@@ -361,9 +365,9 @@ var camera = (function() {
 		for (var i = 0; i < markers.length; ++i) {
 			var pos = posEst(markers[i]);
 			// console.log(pos);
-			var bestTranslation = pos.pose(markers[i].corners).bestTranslation;
+			var bT = pos.pose(markers[i].corners).bestTranslation;
 			// console.log(bestTranslation);
-			var bestRotation = pos.pose(markers[i].corners).bestRotation;
+			var bR = pos.pose(markers[i].corners).bestRotation;
 			// console.log(bestRotation);
 
 			// TOTALLY INCORRECT MATRICES!!!!
@@ -385,18 +389,16 @@ var camera = (function() {
 
 
 			//homogeneous translation matrix!
-			var matrixRotation = new THREE.Matrix4();
-			for (var k = 0; k < bestRotation.length; k++) {
-				matrixRotation.data[k] = bestRotation[k][0];
-				matrixRotation.data[k + 4] = bestRotation[k][1];
-				matrixRotation.data[k + 8] = bestRotation[k][2];
-			}
+			var matrixRotation = new THREE.Matrix4(bR[0][0], bR[0][1], bR[0][2], bT[0],
+													bR[1][0], bR[1][1], bR[1][2], bT[1],
+													bR[2][0], bR[2][1], bR[2][2], bT[2],
+													0, 0, 0, 1);
 		}
-		var pmd = positionMatrix.data;
-		var cameraMatrix = new THREE.Matrix4(pmd[0], pmd[1], 0, pmd[2],
-											pmd[3], pmd[4], 0, pmd[5],
-											0, 0, 1, 0,
-											pmd[6], pmd[7], 0, pmd[8]);
+		// var pmd = positionMatrix.data;
+		// var cameraMatrix = new THREE.Matrix4(pmd[0], pmd[1], 0, pmd[2],
+		// 									pmd[3], pmd[4], 0, pmd[5],
+		// 									0, 0, 1, 0,
+		// 									pmd[6], pmd[7], 0, pmd[8]);
 		// console.log(cameraMatrix);
 		// if (rectangleCorners.length >= 4) {
 		// 	ht = multKT();
@@ -409,20 +411,29 @@ var camera = (function() {
 			// invcamMat.getInverse(cameraMatrix);
 		// 	// scene.add(mesh);
 		// }
-		var clone = camera.clone();
-		if (cameraMatrix) {
-			// console.log(invcamMat);
-			var invcamMat = new THREE.Matrix4();
-			invcamMat.getInverse(cameraMatrix);
-			// console.log(invcamMat);
-			clone.projectionMatrix.multiplyMatrices(camera.projectionMatrix, invcamMat);
-		}
-		
+		// var clone = camera.clone();
+		// if (matrixRotation) {
+			// // console.log(invcamMat);
+			// var invcamMat = new THREE.Matrix4();
+			// invcamMat.getInverse(matrixRotation);
+			// // console.log(invcamMat);
+			// clone.projectionMatrix.multiplyMatrices(camera.projectionMatrix, matrixRotation);
+			object.rotation.x = -Math.asin(-bR[1][2]);
+			object.rotation.y = -Math.atan2(bR[0][2], bR[2][2]);
+			object.rotation.z = Math.atan2(bR[1][0], bR[1][1]);
+			object.position.x = bT[0];
+			object.position.y = bT[1];
+			object.position.z = -bT[2];
+			object.scale.x = 0.75;
+			object.scale.y = 0.75;
+			object.scale.z = 0.75;
+			scene.add( object );	
+		// }
 		// mesh.rotation.x = 1;
 		// mesh.rotation.y = 0;
 		// mesh.rotation.z += 0.1;
 		renderer.clear();
-		renderer.render( scene, clone );
+		renderer.render( scene, camera );
 
 	}
 
