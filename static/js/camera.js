@@ -1,9 +1,11 @@
 var camera = (function() {
 	var options;
 	var video, canvas, canvasOverlay, context;
+	var markers;
 	var renderTimer;
-	var positionMatrix;
-	var img_u8;
+	var camera, scene, renderer;
+	var object;
+	var counter;
 
 	function initVideoStream() {
 		video = document.createElement("video");
@@ -68,17 +70,15 @@ var camera = (function() {
 	}
 
 	function detection(){
-		var ctx = document.getElementById("livevideo").getContext("2d");
-		ctx.drawImage(video, 0, 0, video.width, video.height);
+		context.drawImage(video, 0, 0, video.width, video.height);
 		var imageData = getVideoInfo();
 		detector = new AR.Detector();
 		if (video) {
-			var markers = detector.detect(imageData);
+			markers = detector.detect(imageData);
 		}
 	}
 
 	function posEst(marker) {
-		var canvas = document.getElementById("livevideo");
 		var posit = new POS.Posit(58, canvas.width);
 
 		var corners = marker.corners;
@@ -101,9 +101,7 @@ var camera = (function() {
 	}
 
 	function getVideoInfo() {
-		var v = document.getElementById("livevideo");
-		var ctx=v.getContext("2d");
-		return ctx.getImageData(0,0,canvas.width,canvas.height);
+		return context.getImageData(0,0,canvas.width,canvas.height);
 	}
 
 	function pauseCapture() {
@@ -121,11 +119,6 @@ var camera = (function() {
 	    }
     }
 
-	var camera, scene, renderer;
-	var geometry, material, mesh;
-
-
-
 	// ThreeJS animate and draw a cube
 	function initOverlay() {
 
@@ -133,15 +126,12 @@ var camera = (function() {
 
 		scene = new THREE.Scene();
 
-		geometry = new THREE.CubeGeometry( 100, 100, 100);
-		material = new THREE.MeshLambertMaterial( { color: 0xff0000, wireframe: false } );
+		var geometry = new THREE.CubeGeometry( 100, 100, 100);
+		var material = new THREE.MeshLambertMaterial( { color: 0xff0000, wireframe: false } );
 		object = new THREE.Object3D();
 		var mesh = new THREE.Mesh( geometry, material );
 		object.add(mesh);
 		scene.add( object );
-		// mesh = new THREE.Mesh( geometry, material );
-		// scene.add( mesh );
-		// mesh.position.set(0, 0, 1)
 
 		var dlight = new THREE.DirectionalLight( 0xFFFFFF, 1 );
 		dlight.position.set( 0, 1, 0 );
@@ -163,23 +153,26 @@ var camera = (function() {
 			var pos = posEst(markers[i]);
 			bT = pos.pose(markers[i].corners).bestTranslation;
 			bR = pos.pose(markers[i].corners).bestRotation;
+			counter = 0;
 		}
-		// if (markers.length > 0) {
+		if (markers.length > 0) {
 			object.position.x = bT[0];
-			object.position.y = bT[1];
+			object.position.y = bT[1]+25;
 			object.position.z = -bT[2];
 			object.rotation.x = -Math.asin(-bR[1][2]);
 			object.rotation.y = -Math.atan2(bR[0][2], bR[2][2]);
 			object.rotation.z = Math.atan2(bR[1][0], bR[1][1]);
-			object.scale.x = 0.75;
-			object.scale.y = 0.75;
-			object.scale.z = 0.75;
-		// }
-		// mesh.rotation.x = 1;
-		// mesh.rotation.y = 0;
-		// mesh.rotation.z += 0.1;
-		renderer.clear();
-		renderer.render( scene, camera );
+			object.scale.x = 0.7;
+			object.scale.y = 0.7;
+			object.scale.z = 0.7;
+			renderer.clear();
+			renderer.render( scene, camera );
+		} else {
+			counter++;
+			if (counter > 6) {
+				renderer.clear();
+			}
+		}
 
 	}
 

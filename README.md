@@ -13,6 +13,7 @@ Tools I plan to use:
 - Heroku
 - ThreeJS
 - Wings
+- JS-Aruco
 
 
 
@@ -22,5 +23,11 @@ Steps to get done:
 	- create a canvas [x]
 	- draw something on canvas [x]
 	- put video on canvas [x]
-	- draw on top of video [ ]
-- 
+	- draw on top of video [x]
+- Make JS-Aruco markers [x]
+- Detect markers [x]
+- draw 3d things on video [x]
+- Draw 3d things onto marker [> ]
+- Make 3D models
+- Need to draw 3d model onto marker based on marker id
+- Make multiple markers work simultaneously
