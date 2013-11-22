@@ -51,13 +51,13 @@ var camera = (function() {
 
 	    canvasOverlay = document.createElement("canvas");
 	    canvasOverlay.id = "canvasoverlay";
-	    canvasOverlay.setAttribute('width', options.width);
-	    canvasOverlay.setAttribute('height', options.height);
+	    canvasOverlay.setAttribute('width', 900);//options.width);
+	    canvasOverlay.setAttribute('height', 600);//options.height);
 	    canvasOverlay.style.position = "absolute";
 	    canvasOverlay.style.left = '10px';
-	    canvasOverlay.style.zIndex = '10';
+	    canvasOverlay.style.zIndex = '10001';
 	    // canvasOverlay.style.display = 'block';
-	    // overlayContext = canvasOverlay.getContext('2d');
+	    overlayContext = canvasOverlay.getContext('3d');
 	    // overlayContext.clearRect(0,0,900,600);
 	    // overlayContext.id = "overlay";
 	    vid.appendChild(canvasOverlay);
@@ -67,9 +67,9 @@ var camera = (function() {
 			context.scale(-1, 1);
 		}
 
-		video.play();
+		// video.play();
 		// findCorners();
-		// startCapture();
+		startCapture();
 		detection();
 		initOverlay();
 		animateOverlay();
@@ -78,7 +78,7 @@ var camera = (function() {
 
 	function drawCorners(markers) {
 		var corners, corner, i, j;
-		var ctx = document.getElementById("canvasoverlay").getContext("2d");
+		var ctx = document.getElementById("canvasoverlay").getContext("3d");
 		ctx.lineWidth = 3;
 
 		for (i = 0; i < markers.length; ++i){
@@ -104,7 +104,7 @@ var camera = (function() {
 	function drawID(markers) {
 		var corners, corner, x, y, i, j;
 
-		var ctx = document.getElementById("canvasoverlay").getContext("2d");
+		var ctx = document.getElementById("canvasoverlay").getContext("3d");
 		ctx.strokeStyle = "rgba(0, 0, 255, 1)";
 		ctx.lineWidth = 1;
 
@@ -130,12 +130,13 @@ var camera = (function() {
 	function detection(){
 		requestAnimationFrame(detection);
 		var canvas = document.getElementById("canvasoverlay");
-		canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+		// canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 		var ctx = document.getElementById("livevideo").getContext("2d");
 		ctx.drawImage(video, 0, 0, video.width, video.height);
-		ctx = document.getElementById("canvasoverlay").getContext("2d");
-		detector = new AR.Detector();
 		var imageData = getVideoInfo();
+		// console.log(imageData);
+		ctx = document.getElementById("canvasoverlay").getContext("3d");
+		detector = new AR.Detector();
 		if (video) {
 			var markers = detector.detect(imageData);
 			// drawCorners(markers);
@@ -315,7 +316,7 @@ var camera = (function() {
 		video.pause();
 	}
 
-		var camera, scene, renderer;
+	var camera, scene, renderer;
 	var geometry, material, mesh;
 
 	// ThreeJS animate and draw a cube
@@ -333,13 +334,15 @@ var camera = (function() {
 		scene.add( mesh );
 		// mesh.position.set(0, 0, 1)
 
-		var light = new THREE.PointLight( 0xffffff, 10, 1000 );
+		var light = new THREE.PointLight( 0xFFFFFF, 10, 1000 );
 		light.position.set( 250, 250, 1000 );
 		scene.add( light );
 
-		// renderObj = {canvas: document.getElementById("canvasoverlay")}
 
-		renderer = new THREE.WebGLRenderer({canvas: document.getElementById("canvasoverlay")});
+		renderObj = {canvas: document.getElementById("canvasoverlay")}
+
+		renderer = new THREE.WebGLRenderer(renderObj);
+		// renderer.setClearColor( 0xffffff, 16);
 
 		// document.vid.appendChild( renderer.domElement );
 
@@ -350,35 +353,51 @@ var camera = (function() {
 		// note: three.js includes requestAnimationFrame shim
 		requestAnimationFrame( animateOverlay );
 
+
 		var imageData = getVideoInfo();
-		markers = detector.detect(imageData);
+		// console.log(imageData);
+		var markers = detector.detect(imageData);
+		// console.log(markers);
 		for (var i = 0; i < markers.length; ++i) {
 			var pos = posEst(markers[i]);
+			// console.log(pos);
 			var bestTranslation = pos.pose(markers[i].corners).bestTranslation;
 			// console.log(bestTranslation);
 			var bestRotation = pos.pose(markers[i].corners).bestRotation;
 			// console.log(bestRotation);
-			var matrixTranslation = new jsfeat.matrix_t(1, 3, jsfeat.F32_t | jsfeat.C1_t);
-			for (var j = 0; j < bestTranslation.length; j++) {
-				matrixTranslation.data[j] = bestTranslation[j];
-			}
-			// console.log(matrixTranslation);
-			var matrixRotation = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t);
-			for (var k = 0; k < bestRotation.length; k++) {
-				matrixRotation.data[k * 3] = bestRotation[k][0];
-				matrixRotation.data[k * 3 + 1] = bestRotation[k][1];
-				matrixRotation.data[k * 3 + 2] = bestRotation[k][2];
-			}
-			// console.log(matrixRotation);
-			positionMatrix = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t)
-			jsfeat.matmath.multiply(positionMatrix, matrixRotation, matrixTranslation);
 
+			// TOTALLY INCORRECT MATRICES!!!!
+			// var matrixTranslation = new jsfeat.matrix_t(1, 3, jsfeat.F32_t | jsfeat.C1_t);
+			// for (var j = 0; j < bestTranslation.length; j++) {
+			// 	matrixTranslation.data[j] = bestTranslation[j];
+			// }
+			// // console.log(matrixTranslation);
+			// var matrixRotation = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t);
+			// for (var k = 0; k < bestRotation.length; k++) {
+			// 	matrixRotation.data[k] = bestRotation[k][0];
+			// 	matrixRotation.data[k + 3] = bestRotation[k][1];
+			// 	matrixRotation.data[k + 6] = bestRotation[k][2];
+			// }
+			// // console.log(matrixRotation);
+			// positionMatrix = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t)
+			// jsfeat.matmath.multiply(positionMatrix, matrixTranslation, matrixRotation);
+			// // console.log(positionMatrix);
+
+
+			//homogeneous translation matrix!
+			var matrixRotation = new THREE.Matrix4();
+			for (var k = 0; k < bestRotation.length; k++) {
+				matrixRotation.data[k] = bestRotation[k][0];
+				matrixRotation.data[k + 4] = bestRotation[k][1];
+				matrixRotation.data[k + 8] = bestRotation[k][2];
+			}
 		}
 		var pmd = positionMatrix.data;
 		var cameraMatrix = new THREE.Matrix4(pmd[0], pmd[1], 0, pmd[2],
 											pmd[3], pmd[4], 0, pmd[5],
 											0, 0, 1, 0,
 											pmd[6], pmd[7], 0, pmd[8]);
+		// console.log(cameraMatrix);
 		// if (rectangleCorners.length >= 4) {
 		// 	ht = multKT();
 		// 	htd = ht.data
@@ -386,19 +405,23 @@ var camera = (function() {
 		// 									htd[3], htd[4], 0, htd[5],
 		// 									0, 0, 1, 0,
 		// 									htd[6], htd[7], 0, htd[8]);
-		// 	var invcamMat = new THREE.Matrix4();
-		// 	invcamMat.getInverse(cameraMatrix);
+			// var invcamMat = new THREE.Matrix4();
+			// invcamMat.getInverse(cameraMatrix);
 		// 	// scene.add(mesh);
 		// }
 		var clone = camera.clone();
 		if (cameraMatrix) {
 			// console.log(invcamMat);
-			clone.projectionMatrix.multiplyMatrices(camera.projectionMatrix, cameraMatrix);
+			var invcamMat = new THREE.Matrix4();
+			invcamMat.getInverse(cameraMatrix);
+			// console.log(invcamMat);
+			clone.projectionMatrix.multiplyMatrices(camera.projectionMatrix, invcamMat);
 		}
 		
 		// mesh.rotation.x = 1;
 		// mesh.rotation.y = 0;
 		// mesh.rotation.z += 0.1;
+		renderer.clear();
 		renderer.render( scene, clone );
 
 	}

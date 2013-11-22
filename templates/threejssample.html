@@ -3,7 +3,6 @@
 <head>
 </head>
 <body>
-	<canvas id="3d" height=600 width=900></canvas>
 	<script src="http://code.jquery.com/jquery-2.0.3.js"></script>
 	<script src="/../static/js/three.min.js"></script>
 	<script>
@@ -15,6 +14,14 @@
 	animate();
 
 	function init() {
+		canvas = document.createElement("canvas");
+		canvas.id = "3d";
+		canvas.setAttribute('width', 900);
+		canvas.setAttribute('height', 600);
+		document.body.appendChild(canvas);
+	    canvas.style.position = "absolute";
+	    canvas.style.left = '10px';
+	    canvas.style.zIndex = '10001';
 
 		camera = new THREE.PerspectiveCamera( 75, 900 / 600, 1, 10000 );
 		camera.position.z = 1000;
