@@ -35,7 +35,7 @@ var camera = (function() {
 		} else {
 			options.onNotSupported();
 		}
-		return video
+		return 
 	}
 
 	function initCanvas() {
@@ -96,14 +96,6 @@ var camera = (function() {
 		}
 		return posit;
 	}
-
-	// function startCapture() {
-
-
-	// 	// renderTimer = setInterval(function() {
-	// 	// 		context.drawImage(video, 0, 0, video.width, video.height);
-	// 	// }, Math.round(1000 / options.fps));
-	// }
 
 	function getVideoInfo() {
 		return context.getImageData(0,0,canvas.width,canvas.height);

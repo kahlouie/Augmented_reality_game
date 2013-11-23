@@ -31,3 +31,13 @@ Steps to get done:
 - Make 3D models
 - Need to draw 3d model onto marker based on marker id
 - Make multiple markers work simultaneously
+
+
+
+
+
+Things I DID to optimize:
+- Optimized frames per second speed
+	- Stopped creating new things (the detector and the posit) in a repeated loop so it doesn't have to keep garbage collecting
+	- Stopped doing things, like feature detection multiple times in the same loop
+	- Passed these things from one function to another instead of making them global
