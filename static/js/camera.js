@@ -1,6 +1,6 @@
 var camera = (function() {
 	var options;
-	var video, canvas, canvasOverlay, context;
+	var canvas, canvasOverlay, context;
 	var markers;
 	var renderTimer;
 	var camera, scene, renderer;
@@ -11,7 +11,7 @@ var camera = (function() {
 	var imageData;
 
 	function initVideoStream() {
-		video = document.createElement("video");
+		var video = document.createElement("video");
 		video.setAttribute('width', options.width);
 		video.setAttribute('height', options.height);
 
@@ -30,7 +30,7 @@ var camera = (function() {
 					video.src = window.URL && window.URL.createObjectURL(stream) || stream;
 				}
 
-				initCanvas();
+				initCanvas(video);
 			}, options.onError);
 		} else {
 			options.onNotSupported();
@@ -38,7 +38,7 @@ var camera = (function() {
 		return 
 	}
 
-	function initCanvas() {
+	function initCanvas(video) {
 		canvas = options.targetCanvas || document.createElement("canvas");
 		canvas.id = "livevideo";
 		vid.appendChild(canvas)
@@ -66,16 +66,18 @@ var camera = (function() {
 		video.play();
 		ctx = document.getElementById("canvasoverlay").getContext("3d");
 		initOverlay();
-		detectAndAnimate();
+		detectAndAnimate(video);
 	}
 
-	function detectAndAnimate() {
-		requestAnimationFrame(detectAndAnimate);
-		detection();
+	function detectAndAnimate(video) {
+		requestAnimationFrame(function (){
+			detectAndAnimate(video);	
+		});
+		detection(video);
 		animateOverlay();
 	}
 
-	function detection(){
+	function detection(video){
 		context.drawImage(video, 0, 0, video.width, video.height);
 		imageData = getVideoInfo();
 		if (video) {
