@@ -6,6 +6,9 @@ var camera = (function() {
 	var camera, scene, renderer;
 	var object;
 	var counter;
+	var detector = new AR.Detector();
+	var posit;
+	var imageData;
 
 	function initVideoStream() {
 		video = document.createElement("video");
@@ -32,6 +35,7 @@ var camera = (function() {
 		} else {
 			options.onNotSupported();
 		}
+		return video
 	}
 
 	function initCanvas() {
@@ -52,12 +56,14 @@ var camera = (function() {
 	    overlayContext = canvasOverlay.getContext('3d');
 	    vid.appendChild(canvasOverlay);
 
+	    posit = new POS.Posit(58, canvas.width);
+
 		if (options.mirror) {
 			context.translate(canvas.width, 0);
 			context.scale(-1, 1);
 		}
 
-		startCapture();
+		video.play();
 		ctx = document.getElementById("canvasoverlay").getContext("3d");
 		initOverlay();
 		detectAndAnimate();
@@ -71,15 +77,14 @@ var camera = (function() {
 
 	function detection(){
 		context.drawImage(video, 0, 0, video.width, video.height);
-		var imageData = getVideoInfo();
-		detector = new AR.Detector();
+		imageData = getVideoInfo();
 		if (video) {
 			markers = detector.detect(imageData);
 		}
+		return 
 	}
 
 	function posEst(marker) {
-		var posit = new POS.Posit(58, canvas.width);
 
 		var corners = marker.corners;
 
@@ -92,32 +97,17 @@ var camera = (function() {
 		return posit;
 	}
 
-	function startCapture() {
-		video.play();
+	// function startCapture() {
 
-		renderTimer = setInterval(function() {
-				context.drawImage(video, 0, 0, video.width, video.height);
-		}, Math.round(1000 / options.fps));
-	}
+
+	// 	// renderTimer = setInterval(function() {
+	// 	// 		context.drawImage(video, 0, 0, video.width, video.height);
+	// 	// }, Math.round(1000 / options.fps));
+	// }
 
 	function getVideoInfo() {
 		return context.getImageData(0,0,canvas.width,canvas.height);
 	}
-
-	function pauseCapture() {
-		if (renderTimer) clearInterval(renderTimer);
-		video.pause();
-	}
-
-	function stopCapture() {
-	    pauseCapture();
-
-	    if (video.mozSrcObject !== undefined) {
-            video.mozSrcObject = null;
-	    } else {
-            video.src = "";
-	    }
-    }
 
 	// ThreeJS animate and draw a cube
 	function initOverlay() {
@@ -146,8 +136,6 @@ var camera = (function() {
 	}
 
 	function animateOverlay() {
-		var imageData = getVideoInfo();
-		var markers = detector.detect(imageData);
 		var bT, bR;
 		for (var i = 0; i < markers.length; ++i) {
 			var pos = posEst(markers[i]);
@@ -196,12 +184,6 @@ var camera = (function() {
 
 			initVideoStream();
 		},
-
-		start: startCapture,
-
-		pause: pauseCapture,
-
-		stop: stopCapture
 	};
 })();
 
