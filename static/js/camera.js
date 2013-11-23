@@ -1,8 +1,6 @@
 var camera = (function() {
-	var options;
 	var canvas, canvasOverlay, context;
 	var markers;
-	var renderTimer;
 	var camera, scene, renderer;
 	var object;
 	var counter;
@@ -10,7 +8,15 @@ var camera = (function() {
 	var posit;
 	var imageData;
 
-	function initVideoStream() {
+	function RecognizedMarker(id, object) {
+		this.id = id;
+		this.object = object;
+		this.counter = 0;
+		this.bT = [];
+		this.bR = [];
+	}
+
+	function initVideoStream(options) {
 		var video = document.createElement("video");
 		video.setAttribute('width', options.width);
 		video.setAttribute('height', options.height);
@@ -30,7 +36,7 @@ var camera = (function() {
 					video.src = window.URL && window.URL.createObjectURL(stream) || stream;
 				}
 
-				initCanvas(video);
+				initCanvas(video, options);
 			}, options.onError);
 		} else {
 			options.onNotSupported();
@@ -38,7 +44,7 @@ var camera = (function() {
 		return 
 	}
 
-	function initCanvas(video) {
+	function initCanvas(video, options) {
 		canvas = options.targetCanvas || document.createElement("canvas");
 		canvas.id = "livevideo";
 		vid.appendChild(canvas)
@@ -110,12 +116,18 @@ var camera = (function() {
 
 		scene = new THREE.Scene();
 
-		var geometry = new THREE.CubeGeometry( 100, 100, 100);
-		var material = new THREE.MeshLambertMaterial( { color: 0xff0000, wireframe: false } );
-		object = new THREE.Object3D();
-		var mesh = new THREE.Mesh( geometry, material );
-		object.add(mesh);
-		scene.add( object );
+		var cube = new THREE.CubeGeometry( 100, 100, 100);
+		var redMaterial = new THREE.MeshLambertMaterial( { color: 0xff0000} );
+		var redCube = new THREE.Object3D();
+		var redMesh = new THREE.Mesh( cube, redMaterial );
+		redCube.add(redMesh);
+		m431 = new RecognizedMarker(431, redCube);
+
+		var greenMaterial = new THREE.MeshLambertMaterial( { color: 0x00ff00});
+		var greenMesh = new THREE.Mesh( cube, greenMaterial);
+		var greenCube = new THREE.Object3D();
+		greenCube.add(greenMesh);
+		m783 = new RecognizedMarker(783, greenCube);
 
 		var dlight = new THREE.DirectionalLight( 0xFFFFFF, 1 );
 		dlight.position.set( 0, 1, 0 );
@@ -131,38 +143,47 @@ var camera = (function() {
 
 	function animateOverlay() {
 		var bT, bR;
-		for (var i = 0; i < markers.length; ++i) {
-			var pos = posEst(markers[i]);
-			bT = pos.pose(markers[i].corners).bestTranslation;
-			bR = pos.pose(markers[i].corners).bestRotation;
-			counter = 0;
-		}
-		if (markers.length > 0) {
-			object.position.x = bT[0];
-			object.position.y = bT[1]+25;
-			object.position.z = -bT[2];
-			object.rotation.x = -Math.asin(-bR[1][2]);
-			object.rotation.y = -Math.atan2(bR[0][2], bR[2][2]);
-			object.rotation.z = Math.atan2(bR[1][0], bR[1][1]);
-			object.scale.x = 0.7;
-			object.scale.y = 0.7;
-			object.scale.z = 0.7;
-			renderer.clear();
-			renderer.render( scene, camera );
-		} else {
-			counter++;
-			if (counter > 6) {
-				renderer.clear();
+		var md ={"431": m431, "783": m783};
+		for (var k in md) {
+			md[k].counter++;
+			if (md[k].counter > 6) {
+				scene.remove(md[k].object);
 			}
 		}
+		for (var i = 0; i < markers.length; ++i) {
+			var pos = posEst(markers[i]);
+			var rm = md[markers[i].id];
+			rm.bT = pos.pose(markers[i].corners).bestTranslation;
+			rm.bR = pos.pose(markers[i].corners).bestRotation;
+			rm.counter = 0;
+			scene.add(rm.object);
+			rm.object.position.x = rm.bT[0];
+			rm.object.position.y = rm.bT[1]+25;
+			rm.object.position.z = -rm.bT[2];
+			rm.object.rotation.x = -Math.asin(-rm.bR[1][2]);
+			rm.object.rotation.y = -Math.atan2(rm.bR[0][2], rm.bR[2][2]);
+			rm.object.rotation.z = Math.atan2(rm.bR[1][0], rm.bR[1][1]);
+			rm.object.scale.x = 0.7;
+			rm.object.scale.y = 0.7;
+			rm.object.scale.z = 0.7;
+		}
+		renderer.clear();
+		renderer.render( scene, camera );
+
 
 	}
 
+		// else {
+		// 	counter++;
+		// 	if (counter > 6) {
+		// 		renderer.clear();
+		// 	}
+		// }
 	return {
 		init: function(captureOptions) {
 			var doNothing = function(){};
 
-			options = captureOptions || {};
+			var options = captureOptions || {};
 
 			options.fps = options.fps || 30;
 			options.width = options.width || 640;
@@ -176,7 +197,7 @@ var camera = (function() {
 			options.onNotSupported = options.onNotSupported || doNothing;
 			options.onFrame = options.onFrame || doNothing;
 
-			initVideoStream();
+			initVideoStream(options);
 		},
 	};
 })();
