@@ -14,6 +14,8 @@ var camera = (function() {
 		this.counter = 0;
 		this.bT = [];
 		this.bR = [];
+		this.center = [0, 0];
+		this.originalColor = object.children[0].material;
 	}
 
 	function initVideoStream(options) {
@@ -116,7 +118,7 @@ var camera = (function() {
 
 		scene = new THREE.Scene();
 
-		var cube = new THREE.CubeGeometry( 100, 100, 100);
+		cube = new THREE.CubeGeometry( 100, 100, 100);
 		var redMaterial = new THREE.MeshLambertMaterial( { color: 0xff0000} );
 		var redCube = new THREE.Object3D();
 		var redMesh = new THREE.Mesh( cube, redMaterial );
@@ -166,6 +168,30 @@ var camera = (function() {
 			rm.object.scale.x = 0.7;
 			rm.object.scale.y = 0.7;
 			rm.object.scale.z = 0.7;
+			if (i === 1) {
+				var m0xsum = 0;
+				var m1xsum = 0;
+				var m0ysum = 0;
+				var m1ysum = 0;
+				for (var c = 0; c < 4; c++) {
+					m0xsum += markers[0].corners[c].x;
+					m0ysum += markers[0].corners[c].y;
+					m1xsum += markers[1].corners[c].x;
+					m1ysum += markers[1].corners[c].y;
+				}
+				rm.center = [m1xsum/4, m1ysum/4];
+				md[markers[0].id].center =  [m0xsum/4, m0ysum/4];
+				var xDiff = rm.center[0] - md[markers[0].id].center[0];
+				var yDiff = rm.center[1] - md[markers[0].id].center[1];
+				if (Math.sqrt((xDiff*xDiff) + (yDiff*yDiff)) < 200) {
+					var blueMaterial = new THREE.MeshLambertMaterial( { color: 0x0000ff});
+					rm.object.children[0].material = blueMaterial;
+					md[markers[0].id].object.children[0].material = blueMaterial;
+				} else {
+					rm.object.children[0].material = rm.originalColor;
+					md[markers[0].id].object.children[0].material = md[markers[0].id].originalColor;
+				}
+			}
 		}
 		renderer.clear();
 		renderer.render( scene, camera );
