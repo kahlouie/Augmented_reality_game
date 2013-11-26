@@ -168,29 +168,43 @@ var camera = (function() {
 			rm.object.scale.x = 0.7;
 			rm.object.scale.y = 0.7;
 			rm.object.scale.z = 0.7;
+			rm.object.children[0].material = rm.originalColor;
 			if (i === 1) {
-				var m0xsum = 0;
-				var m1xsum = 0;
-				var m0ysum = 0;
-				var m1ysum = 0;
-				for (var c = 0; c < 4; c++) {
-					m0xsum += markers[0].corners[c].x;
-					m0ysum += markers[0].corners[c].y;
-					m1xsum += markers[1].corners[c].x;
-					m1ysum += markers[1].corners[c].y;
-				}
-				rm.center = [m1xsum/4, m1ysum/4];
-				md[markers[0].id].center =  [m0xsum/4, m0ysum/4];
-				var xDiff = rm.center[0] - md[markers[0].id].center[0];
-				var yDiff = rm.center[1] - md[markers[0].id].center[1];
-				if (Math.sqrt((xDiff*xDiff) + (yDiff*yDiff)) < 200) {
+				var m0 = md[markers[0].id];
+				var xDiff = Math.abs(rm.object.position.x - m0.object.position.x);
+				var yDiff = Math.abs(rm.object.position.y - m0.object.position.y);
+				var zDiff = Math.abs(rm.object.position.z - m0.object.position.z);
+				if (m0.id !== rm.id && zDiff < 50 && xDiff < 100 && yDiff < 100){//Math.sqrt((xDiff*xDiff) + (yDiff*yDiff)) < 200){
 					var blueMaterial = new THREE.MeshLambertMaterial( { color: 0x0000ff});
 					rm.object.children[0].material = blueMaterial;
-					md[markers[0].id].object.children[0].material = blueMaterial;
-				} else {
-					rm.object.children[0].material = rm.originalColor;
-					md[markers[0].id].object.children[0].material = md[markers[0].id].originalColor;
+					m0.object.children[0].material = blueMaterial;
 				}
+
+
+
+
+				// var m0xsum = 0;
+				// var m1xsum = 0;
+				// var m0ysum = 0;
+				// var m1ysum = 0;
+				// for (var c = 0; c < 4; c++) {
+				// 	m0xsum += markers[0].corners[c].x;
+				// 	m0ysum += markers[0].corners[c].y;
+				// 	m1xsum += markers[1].corners[c].x;
+				// 	m1ysum += markers[1].corners[c].y;
+				// }
+				// rm.center = [m1xsum/4, m1ysum/4];
+				// md[markers[0].id].center =  [m0xsum/4, m0ysum/4];
+				// var xDiff = rm.center[0] - md[markers[0].id].center[0];
+				// var yDiff = rm.center[1] - md[markers[0].id].center[1];
+				// if (Math.sqrt((xDiff*xDiff) + (yDiff*yDiff)) < 200) {
+				// 	var blueMaterial = new THREE.MeshLambertMaterial( { color: 0x0000ff});
+				// 	rm.object.children[0].material = blueMaterial;
+				// 	md[markers[0].id].object.children[0].material = blueMaterial;
+				// } else {
+				// 	rm.object.children[0].material = rm.originalColor;
+				// 	md[markers[0].id].object.children[0].material = md[markers[0].id].originalColor;
+				// }
 			}
 		}
 		renderer.clear();
