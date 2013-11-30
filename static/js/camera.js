@@ -118,12 +118,26 @@ var camera = (function() {
 
 		scene = new THREE.Scene();
 
+		var manager = new THREE.LoadingManager();
+
+		var loader = new THREE.OBJLoader( manager );
+		loader.load( '/static/images/floatingNose.obj', function ( object ) {
+
+			var skinMaterial = new THREE.MeshLambertMaterial( {color: 0xF5BAA4} );
+			var noseMesh = new THREE.Mesh(object, skinMaterial);
+			var nose = new THREE.Object3D();
+			nose.add(noseMesh);
+			m431 = new RecognizedMarker(431, nose);
+
+		} );
+
+
 		cube = new THREE.CubeGeometry( 100, 100, 100);
-		var redMaterial = new THREE.MeshLambertMaterial( { color: 0xff0000} );
-		var redCube = new THREE.Object3D();
-		var redMesh = new THREE.Mesh( cube, redMaterial );
-		redCube.add(redMesh);
-		m431 = new RecognizedMarker(431, redCube);
+		// var redMaterial = new THREE.MeshLambertMaterial( { color: 0xff0000} );
+		// var redCube = new THREE.Object3D();
+		// var redMesh = new THREE.Mesh( cube, redMaterial );
+		// redCube.add(redMesh);
+		// m431 = new RecognizedMarker(431, redCube);
 
 		var greenMaterial = new THREE.MeshLambertMaterial( { color: 0x00ff00});
 		var greenMesh = new THREE.Mesh( cube, greenMaterial);
