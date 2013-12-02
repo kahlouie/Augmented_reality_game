@@ -122,12 +122,7 @@ var camera = (function() {
 
 		var loader = new THREE.OBJLoader( manager );
 		loader.load( '/static/images/floatingNose.obj', function ( object ) {
-
-			var skinMaterial = new THREE.MeshLambertMaterial( {color: 0xF5BAA4} );
-			var noseMesh = new THREE.Mesh(object, skinMaterial);
-			var nose = new THREE.Object3D();
-			nose.add(noseMesh);
-			m431 = new RecognizedMarker(431, nose);
+			m431 = new RecognizedMarker(431, object);
 
 		} );
 
@@ -145,6 +140,8 @@ var camera = (function() {
 		greenCube.add(greenMesh);
 		m783 = new RecognizedMarker(783, greenCube);
 
+		skinMaterial = new THREE.MeshLambertMaterial({color: 0xF5BAA4});
+
 		var dlight = new THREE.DirectionalLight( 0xFFFFFF, 1 );
 		dlight.position.set( 0, 1, 0 );
 		scene.add( dlight );
@@ -159,7 +156,12 @@ var camera = (function() {
 
 	function animateOverlay() {
 		var bT, bR;
-		var md ={"431": m431, "783": m783};
+		var md ={"783": m783};
+		if (m431) {
+			md["431"] = m431;
+			m431.originalColor = skinMaterial;
+			m431.object.children[0].material = skinMaterial;
+		}
 		for (var k in md) {
 			md[k].counter++;
 			if (md[k].counter > 6) {
@@ -169,6 +171,15 @@ var camera = (function() {
 		for (var i = 0; i < markers.length; ++i) {
 			var pos = posEst(markers[i]);
 			var rm = md[markers[i].id];
+			if (rm === m431) {
+				rm.object.scale.x = 30;
+				rm.object.scale.y = 30;
+				rm.object.scale.z = 30;
+			} else {
+				rm.object.scale.x = 0.7;
+				rm.object.scale.y = 0.7;
+				rm.object.scale.z = 0.7;
+			}
 			rm.bT = pos.pose(markers[i].corners).bestTranslation;
 			rm.bR = pos.pose(markers[i].corners).bestRotation;
 			rm.counter = 0;
@@ -179,9 +190,6 @@ var camera = (function() {
 			rm.object.rotation.x = -Math.asin(-rm.bR[1][2]);
 			rm.object.rotation.y = -Math.atan2(rm.bR[0][2], rm.bR[2][2]);
 			rm.object.rotation.z = Math.atan2(rm.bR[1][0], rm.bR[1][1]);
-			rm.object.scale.x = 0.7;
-			rm.object.scale.y = 0.7;
-			rm.object.scale.z = 0.7;
 			rm.object.children[0].material = rm.originalColor;
 			if (i === 1) {
 				var m0 = md[markers[0].id];
