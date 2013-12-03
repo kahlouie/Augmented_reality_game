@@ -122,7 +122,7 @@ var camera = (function() {
 
 		var loader = new THREE.OBJLoader( manager );
 		loader.load( '/static/images/floatingNose.obj', function ( object ) {
-			m431 = new RecognizedMarker(431, object);
+			Nose = new RecognizedMarker(431, object);
 
 		} );
 
@@ -132,13 +132,13 @@ var camera = (function() {
 		// var redCube = new THREE.Object3D();
 		// var redMesh = new THREE.Mesh( cube, redMaterial );
 		// redCube.add(redMesh);
-		// m431 = new RecognizedMarker(431, redCube);
+		// Nose = new RecognizedMarker(431, redCube);
 
 		var greenMaterial = new THREE.MeshLambertMaterial( { color: 0x00ff00});
 		var greenMesh = new THREE.Mesh( cube, greenMaterial);
 		var greenCube = new THREE.Object3D();
 		greenCube.add(greenMesh);
-		m783 = new RecognizedMarker(783, greenCube);
+		Cube = new RecognizedMarker(783, greenCube);
 
 		skinMaterial = new THREE.MeshLambertMaterial({color: 0xF5BAA4});
 
@@ -152,15 +152,18 @@ var camera = (function() {
 		renderObj = {canvas: document.getElementById("canvasoverlay")}
 
 		renderer = new THREE.WebGLRenderer(renderObj);
+
+		closeCount = 0;
+		frameCount = 0;
 	}
 
 	function animateOverlay() {
 		var bT, bR;
-		var md ={"783": m783};
-		if (m431) {
-			md["431"] = m431;
-			m431.originalColor = skinMaterial;
-			m431.object.children[0].material = skinMaterial;
+		var md ={"783": Cube};
+		if (Nose) {
+			md["431"] = Nose;
+			Nose.originalColor = skinMaterial;
+			Nose.object.children[0].material = skinMaterial;
 		}
 		for (var k in md) {
 			md[k].counter++;
@@ -171,10 +174,10 @@ var camera = (function() {
 		for (var i = 0; i < markers.length; ++i) {
 			var pos = posEst(markers[i]);
 			var rm = md[markers[i].id];
-			if (rm === m431) {
-				rm.object.scale.x = 30;
-				rm.object.scale.y = 30;
-				rm.object.scale.z = 30;
+			if (rm === Nose) {
+				rm.object.scale.x = 50;
+				rm.object.scale.y = 50;
+				rm.object.scale.z = 50;
 			} else {
 				rm.object.scale.x = 0.7;
 				rm.object.scale.y = 0.7;
@@ -197,9 +200,266 @@ var camera = (function() {
 				var yDiff = Math.abs(rm.object.position.y - m0.object.position.y);
 				var zDiff = Math.abs(rm.object.position.z - m0.object.position.z);
 				if (m0.id !== rm.id && zDiff < 50 && xDiff < 100 && yDiff < 100){//Math.sqrt((xDiff*xDiff) + (yDiff*yDiff)) < 200){
-					var blueMaterial = new THREE.MeshLambertMaterial( { color: 0x0000ff});
-					rm.object.children[0].material = blueMaterial;
-					m0.object.children[0].material = blueMaterial;
+					closeCount++;
+					// var blueMaterial = new THREE.MeshLambertMaterial( { color: 0x0000ff});
+					// rm.object.children[0].material = blueMaterial;
+					if (closeCount > 10) {
+						frameCount++;
+						//adjust Nose positioning
+						if (frameCount === 10){
+							if (m0 === Cube) {
+								cubePosition = m0.object.position;
+								cubeScale = m0.object.scale;
+								nosePosition = rm.object.position;
+								// m0.object.children[0].material = blueMaterial;
+							} else if (rm === Cube) {
+								cubePosition = rm.object.position;
+								cubeScale = rm.object.scale;
+								nosePosition = m0.object.position;
+								// rm.object.children[0].material = blueMaterial;
+							}
+							console.log("frameCount is 10");
+						} else if (frameCount > 10 && frameCount < 20){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20);
+							} else {
+								nosePosition.x += (cubePosition.x/20);
+							}
+							nosePosition.y += 100/12;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20);
+							} else {
+								nosePosition.z += (cubePosition.z/20);
+							}
+						} else if (frameCount > 19 && frameCount < 30){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*2);
+							} else {
+								nosePosition.x += (cubePosition.x/20*2);
+							}
+							nosePosition.y += 100/6;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*2);
+							} else {
+								nosePosition.z += (cubePosition.z/20*2);
+							}
+						} else if (frameCount > 29 && frameCount < 40){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*3);
+							} else {
+								nosePosition.x += (cubePosition.x/20*3);
+							}
+							nosePosition.y += 100/4;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*3);
+							} else {
+								nosePosition.z += (cubePosition.z/20*3);
+							}
+						} else if (frameCount > 39 && frameCount < 50){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*4);
+							} else {
+								nosePosition.x += (cubePosition.x/20*4);
+							}
+							nosePosition.y += 100/3;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*4);
+							} else {
+								nosePosition.z += (cubePosition.z/20*4);
+							}
+						} else if (frameCount > 49 && frameCount < 60){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*5);
+							} else {
+								nosePosition.x += (cubePosition.x/20*5);
+							}
+							nosePosition.y += 100/12*5;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*5);
+							} else {
+								nosePosition.z += (cubePosition.z/20*5);
+							}
+						} else if (frameCount > 59 && frameCount < 70){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*6);
+							} else {
+								nosePosition.x += (cubePosition.x/20*6);
+							}
+							nosePosition.y += 100/2;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*6);
+							} else {
+								nosePosition.z += (cubePosition.z/20*6);
+							}
+						} else if (frameCount > 69 && frameCount < 80){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*7);
+							} else {
+								nosePosition.x += (cubePosition.x/20*7);
+							}
+							nosePosition.y += 100/12*7;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*7);
+							} else {
+								nosePosition.z += (cubePosition.z/20*7);
+							}
+						} else if (frameCount > 79 && frameCount < 90){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*8);
+							} else {
+								nosePosition.x += (cubePosition.x/20*8);
+							}
+							nosePosition.y += 100/12*8;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*8);
+							} else {
+								nosePosition.z += (cubePosition.z/20*8);
+							}
+						} else if (frameCount > 89 && frameCount < 100){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*9);
+							} else {
+								nosePosition.x += (cubePosition.x/20*9);
+							}
+							nosePosition.y += 100/12*9;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*9);
+							} else {
+								nosePosition.z += (cubePosition.z/20*9);
+							}
+						} else if (frameCount > 99 && frameCount < 110){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*10);
+							} else {
+								nosePosition.x += (cubePosition.x/20*10);
+							}
+							nosePosition.y += 100/12*10;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*10);
+							} else {
+								nosePosition.z += (cubePosition.z/20*10);
+							}
+						} else if (frameCount > 109 && frameCount < 120){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*11);
+							} else {
+								nosePosition.x += (cubePosition.x/20*11);
+							}
+							nosePosition.y += 100/12*11;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*11);
+							} else {
+								nosePosition.z += (cubePosition.z/20*11);
+							}
+						} else if (frameCount > 119 && frameCount < 130){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*12);
+							} else {
+								nosePosition.x += (cubePosition.x/20*12);
+							}
+							nosePosition.y += 100/12*11/8*7;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*12);
+							} else {
+								nosePosition.z += (cubePosition.z/20*12);
+							}
+							cubeScale -= 0.7/8;
+						} else if (frameCount > 129 && frameCount < 140){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*13);
+							} else {
+								nosePosition.x += (cubePosition.x/20*13);
+							}
+							nosePosition.y += 100/12*11/8*6;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*13);
+							} else {
+								nosePosition.z += (cubePosition.z/20*13);
+							}
+							cubeScale -= 0.7/8*2;
+						} else if (frameCount > 139 && frameCount < 150){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*14);
+							} else {
+								nosePosition.x += (cubePosition.x/20*14);
+							}
+							nosePosition.y += 100/12*11/8*5;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*14);
+							} else {
+								nosePosition.z += (cubePosition.z/20*14);
+							}
+							cubeScale -= 0.7/8*3;
+						} else if (frameCount > 149 && frameCount < 160){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*15);
+							} else {
+								nosePosition.x += (cubePosition.x/20*15);
+							}
+							nosePosition.y += 100/12*11/8*4;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*15);
+							} else {
+								nosePosition.z += (cubePosition.z/20*15);
+							}
+							cubeScale -= 0.7/8*4;
+						} else if (frameCount > 159 && frameCount < 170){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*16);
+							} else {
+								nosePosition.x += (cubePosition.x/20*16);
+							}
+							nosePosition.y += 100/12*11/8*3;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*16);
+							} else {
+								nosePosition.z += (cubePosition.z/20*16);
+							}
+							cubeScale -= 0.7/8*5;
+						} else if (frameCount > 169 && frameCount < 180){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*17);
+							} else {
+								nosePosition.x += (cubePosition.x/20*17);
+							}
+							nosePosition.y += 100/12*11/8*2;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*17);
+							} else {
+								nosePosition.z += (cubePosition.z/20*17);
+							}
+							cubeScale -= 0.7/8*6;
+						} else if (frameCount > 179 && frameCount < 190){
+							if (cubePosition.x > nosePosition.x){
+								nosePosition.x -= (cubePosition.x/20*18);
+							} else {
+								nosePosition.x += (cubePosition.x/20*18);
+							}
+							nosePosition.y += 100/12*11/8;
+							if (cubePosition.z > nosePosition.z){
+								nosePosition.z -= (cubePosition.z/20*18);
+							} else {
+								nosePosition.z += (cubePosition.z/20*18);
+							}
+							cubeScale -= 0.7/8*7;
+						} else {
+							if (m0 === Cube) {
+								scene.remove(m0.object);
+								nosePosition.x = m0.bT[0];
+								nosePosition.y = m0.bT[1]+25;
+								nosePosition.z = -m0.bT[2];
+							} else if (rm === Cube) {
+								scene.remove(rm.object);
+								nosePosition.x = rm.bT[0];
+								nosePosition.y = rm.bT[1]+25;
+								nosePosition.z = -rm.bT[2];
+							}
+						}
+					}
+						// ********* DOUBLE CHECK IF SCENE.ADD should happen in a certain order*************
+				} else {
+					closeCount = 0;
+					frameCount = 0;
 				}
 
 
