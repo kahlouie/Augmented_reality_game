@@ -179,9 +179,9 @@ var camera = (function() {
 				rm.object.scale.y = 50;
 				rm.object.scale.z = 50;
 			} else {
-				rm.object.scale.x = 0.7;
-				rm.object.scale.y = 0.7;
-				rm.object.scale.z = 0.7;
+				rm.object.scale.x = 0.5;
+				rm.object.scale.y = 0.5;
+				rm.object.scale.z = 0.5;
 			}
 			rm.bT = pos.pose(markers[i].corners).bestTranslation;
 			rm.bR = pos.pose(markers[i].corners).bestRotation;
@@ -206,243 +206,40 @@ var camera = (function() {
 					if (closeCount > 10) {
 						frameCount++;
 						//adjust Nose positioning
-						if (frameCount === 10){
-							if (m0 === Cube) {
-								cubePosition = m0.object.position;
-								cubeScale = m0.object.scale;
-								nosePosition = rm.object.position;
-								// m0.object.children[0].material = blueMaterial;
-							} else if (rm === Cube) {
-								cubePosition = rm.object.position;
-								cubeScale = rm.object.scale;
-								nosePosition = m0.object.position;
-								// rm.object.children[0].material = blueMaterial;
+						// if (frameCount === 10){
+						if (m0 === Cube) {
+							cubePosition = m0.object.position;
+							cubeScale = m0.object.scale;
+							nosePosition = rm.object.position;
+							// m0.object.children[0].material = blueMaterial;
+						} else if (rm === Cube) {
+							cubePosition = rm.object.position;
+							cubeScale = rm.object.scale;
+							nosePosition = m0.object.position;
+							// rm.object.children[0].material = blueMaterial;
+						}
+						if (frameCount < 120) {
+							nosePosition.x += (cubePosition.x - nosePosition.x) / 120 * frameCount;
+							nosePosition.z += (cubePosition.z - nosePosition.z) / 120 * frameCount;
+							nosePosition.y += 50 / 120 * frameCount;
+							if (frameCount > 39) {
+								cubeScale.x -= 0.5 / 140 * (frameCount - 40);
+								console.log(cubeScale.x);
+								cubeScale.y -= 0.5 / 140 * (frameCount - 40);
+								cubeScale.z -= 0.5 / 140 * (frameCount - 40);
 							}
-							console.log("frameCount is 10");
-						} else if (frameCount > 10 && frameCount < 20){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20);
-							} else {
-								nosePosition.x += (cubePosition.x/20);
-							}
-							nosePosition.y += 100/12;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20);
-							} else {
-								nosePosition.z += (cubePosition.z/20);
-							}
-						} else if (frameCount > 19 && frameCount < 30){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*2);
-							} else {
-								nosePosition.x += (cubePosition.x/20*2);
-							}
-							nosePosition.y += 100/6;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*2);
-							} else {
-								nosePosition.z += (cubePosition.z/20*2);
-							}
-						} else if (frameCount > 29 && frameCount < 40){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*3);
-							} else {
-								nosePosition.x += (cubePosition.x/20*3);
-							}
-							nosePosition.y += 100/4;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*3);
-							} else {
-								nosePosition.z += (cubePosition.z/20*3);
-							}
-						} else if (frameCount > 39 && frameCount < 50){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*4);
-							} else {
-								nosePosition.x += (cubePosition.x/20*4);
-							}
-							nosePosition.y += 100/3;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*4);
-							} else {
-								nosePosition.z += (cubePosition.z/20*4);
-							}
-						} else if (frameCount > 49 && frameCount < 60){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*5);
-							} else {
-								nosePosition.x += (cubePosition.x/20*5);
-							}
-							nosePosition.y += 100/12*5;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*5);
-							} else {
-								nosePosition.z += (cubePosition.z/20*5);
-							}
-						} else if (frameCount > 59 && frameCount < 70){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*6);
-							} else {
-								nosePosition.x += (cubePosition.x/20*6);
-							}
-							nosePosition.y += 100/2;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*6);
-							} else {
-								nosePosition.z += (cubePosition.z/20*6);
-							}
-						} else if (frameCount > 69 && frameCount < 80){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*7);
-							} else {
-								nosePosition.x += (cubePosition.x/20*7);
-							}
-							nosePosition.y += 100/12*7;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*7);
-							} else {
-								nosePosition.z += (cubePosition.z/20*7);
-							}
-						} else if (frameCount > 79 && frameCount < 90){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*8);
-							} else {
-								nosePosition.x += (cubePosition.x/20*8);
-							}
-							nosePosition.y += 100/12*8;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*8);
-							} else {
-								nosePosition.z += (cubePosition.z/20*8);
-							}
-						} else if (frameCount > 89 && frameCount < 100){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*9);
-							} else {
-								nosePosition.x += (cubePosition.x/20*9);
-							}
-							nosePosition.y += 100/12*9;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*9);
-							} else {
-								nosePosition.z += (cubePosition.z/20*9);
-							}
-						} else if (frameCount > 99 && frameCount < 110){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*10);
-							} else {
-								nosePosition.x += (cubePosition.x/20*10);
-							}
-							nosePosition.y += 100/12*10;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*10);
-							} else {
-								nosePosition.z += (cubePosition.z/20*10);
-							}
-						} else if (frameCount > 109 && frameCount < 120){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*11);
-							} else {
-								nosePosition.x += (cubePosition.x/20*11);
-							}
-							nosePosition.y += 100/12*11;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*11);
-							} else {
-								nosePosition.z += (cubePosition.z/20*11);
-							}
-						} else if (frameCount > 119 && frameCount < 130){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*12);
-							} else {
-								nosePosition.x += (cubePosition.x/20*12);
-							}
-							nosePosition.y += 100/12*11/8*7;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*12);
-							} else {
-								nosePosition.z += (cubePosition.z/20*12);
-							}
-							cubeScale -= 0.7/8;
-						} else if (frameCount > 129 && frameCount < 140){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*13);
-							} else {
-								nosePosition.x += (cubePosition.x/20*13);
-							}
-							nosePosition.y += 100/12*11/8*6;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*13);
-							} else {
-								nosePosition.z += (cubePosition.z/20*13);
-							}
-							cubeScale -= 0.7/8*2;
-						} else if (frameCount > 139 && frameCount < 150){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*14);
-							} else {
-								nosePosition.x += (cubePosition.x/20*14);
-							}
-							nosePosition.y += 100/12*11/8*5;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*14);
-							} else {
-								nosePosition.z += (cubePosition.z/20*14);
-							}
-							cubeScale -= 0.7/8*3;
-						} else if (frameCount > 149 && frameCount < 160){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*15);
-							} else {
-								nosePosition.x += (cubePosition.x/20*15);
-							}
-							nosePosition.y += 100/12*11/8*4;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*15);
-							} else {
-								nosePosition.z += (cubePosition.z/20*15);
-							}
-							cubeScale -= 0.7/8*4;
-						} else if (frameCount > 159 && frameCount < 170){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*16);
-							} else {
-								nosePosition.x += (cubePosition.x/20*16);
-							}
-							nosePosition.y += 100/12*11/8*3;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*16);
-							} else {
-								nosePosition.z += (cubePosition.z/20*16);
-							}
-							cubeScale -= 0.7/8*5;
-						} else if (frameCount > 169 && frameCount < 180){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*17);
-							} else {
-								nosePosition.x += (cubePosition.x/20*17);
-							}
-							nosePosition.y += 100/12*11/8*2;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*17);
-							} else {
-								nosePosition.z += (cubePosition.z/20*17);
-							}
-							cubeScale -= 0.7/8*6;
-						} else if (frameCount > 179 && frameCount < 190){
-							if (cubePosition.x > nosePosition.x){
-								nosePosition.x -= (cubePosition.x/20*18);
-							} else {
-								nosePosition.x += (cubePosition.x/20*18);
-							}
-							nosePosition.y += 100/12*11/8;
-							if (cubePosition.z > nosePosition.z){
-								nosePosition.z -= (cubePosition.z/20*18);
-							} else {
-								nosePosition.z += (cubePosition.z/20*18);
-							}
-							cubeScale -= 0.7/8*7;
+						} else if (frameCount > 119 && frameCount < 180) {
+							nosePosition.x = cubePosition.x;
+							nosePosition.z = cubePosition.z;
+							nosePosition.y += (50 / 120 * 119) - (50 / 60 * (frameCount - 119));
+							cubeScale.x -= 0.5 / 140 * (frameCount - 40);
+							console.log(cubeScale.x);
+							cubeScale.y -= 0.5 / 140 * (frameCount - 40);
+							cubeScale.z -= 0.5 / 140 * (frameCount - 40);
 						} else {
+							nosePosition.x = cubePosition.x;
+							nosePosition.z = cubePosition.z;
+							nosePosition.y = cubePosition.y;
 							if (m0 === Cube) {
 								scene.remove(m0.object);
 								nosePosition.x = m0.bT[0];
