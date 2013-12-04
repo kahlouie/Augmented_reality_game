@@ -142,7 +142,7 @@ var camera = (function() {
 
 		skinMaterial = new THREE.MeshLambertMaterial({color: 0xF5BAA4});
 
-		var dlight = new THREE.DirectionalLight( 0xFFFFFF, 1 );
+		var dlight = new THREE.DirectionalLight( 0xFFFFFF, 0.4 );
 		dlight.position.set( 0, 1, 0 );
 		scene.add( dlight );
 
@@ -223,19 +223,17 @@ var camera = (function() {
 							nosePosition.z += (cubePosition.z - nosePosition.z) / 120 * frameCount;
 							nosePosition.y += 50 / 120 * frameCount;
 							if (frameCount > 39) {
-								cubeScale.x -= 0.5 / 140 * (frameCount - 40);
-								console.log(cubeScale.x);
-								cubeScale.y -= 0.5 / 140 * (frameCount - 40);
-								cubeScale.z -= 0.5 / 140 * (frameCount - 40);
+								cubeScale.x -= 0.5 / 100 * (frameCount - 40);
+								cubeScale.y -= 0.5 / 100 * (frameCount - 40);
+								cubeScale.z -= 0.5 / 100 * (frameCount - 40);
 							}
-						} else if (frameCount > 119 && frameCount < 180) {
+						} else if (frameCount > 119 && frameCount < 140) {
 							nosePosition.x = cubePosition.x;
 							nosePosition.z = cubePosition.z;
-							nosePosition.y += (50 / 120 * 119) - (50 / 60 * (frameCount - 119));
-							cubeScale.x -= 0.5 / 140 * (frameCount - 40);
-							console.log(cubeScale.x);
-							cubeScale.y -= 0.5 / 140 * (frameCount - 40);
-							cubeScale.z -= 0.5 / 140 * (frameCount - 40);
+							nosePosition.y += (50 / 120 * 119) - (50 / 20 * (frameCount - 119));
+							cubeScale.x -= 0.5 / 100 * (frameCount - 40);
+							cubeScale.y -= 0.5 / 100 * (frameCount - 40);
+							cubeScale.z -= 0.5 / 100 * (frameCount - 40);
 						} else {
 							nosePosition.x = cubePosition.x;
 							nosePosition.z = cubePosition.z;
@@ -253,51 +251,16 @@ var camera = (function() {
 							}
 						}
 					}
-						// ********* DOUBLE CHECK IF SCENE.ADD should happen in a certain order*************
 				} else {
 					closeCount = 0;
 					frameCount = 0;
 				}
-
-
-
-
-				// var m0xsum = 0;
-				// var m1xsum = 0;
-				// var m0ysum = 0;
-				// var m1ysum = 0;
-				// for (var c = 0; c < 4; c++) {
-				// 	m0xsum += markers[0].corners[c].x;
-				// 	m0ysum += markers[0].corners[c].y;
-				// 	m1xsum += markers[1].corners[c].x;
-				// 	m1ysum += markers[1].corners[c].y;
-				// }
-				// rm.center = [m1xsum/4, m1ysum/4];
-				// md[markers[0].id].center =  [m0xsum/4, m0ysum/4];
-				// var xDiff = rm.center[0] - md[markers[0].id].center[0];
-				// var yDiff = rm.center[1] - md[markers[0].id].center[1];
-				// if (Math.sqrt((xDiff*xDiff) + (yDiff*yDiff)) < 200) {
-				// 	var blueMaterial = new THREE.MeshLambertMaterial( { color: 0x0000ff});
-				// 	rm.object.children[0].material = blueMaterial;
-				// 	md[markers[0].id].object.children[0].material = blueMaterial;
-				// } else {
-				// 	rm.object.children[0].material = rm.originalColor;
-				// 	md[markers[0].id].object.children[0].material = md[markers[0].id].originalColor;
-				// }
 			}
 		}
 		renderer.clear();
 		renderer.render( scene, camera );
-
-
 	}
 
-		// else {
-		// 	counter++;
-		// 	if (counter > 6) {
-		// 		renderer.clear();
-		// 	}
-		// }
 	return {
 		init: function(captureOptions) {
 			var doNothing = function(){};
