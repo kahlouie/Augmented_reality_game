@@ -1,7 +1,8 @@
 Augmented_reality_game
 ======================
 This README is not finished. Please check back again for updates!
-
+It is available on the web at Augmented-reality.herokuapp.com.
+If you need the markers, you can print them out at Augmented-reality.herokuapp.com/marker.
 
 Javascript augmented reality game available on the web!
 
